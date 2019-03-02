@@ -499,5 +499,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
+        type: 3}
+      propertyPath: GridInitWidth
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
+        type: 3}
+      propertyPath: GridInitHeight
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
+        type: 3}
+      propertyPath: CellSize
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
+        type: 3}
+      propertyPath: ShowDebugSprings
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a675d4717ff90144a8a9e06d4d8ff5e, type: 3}
