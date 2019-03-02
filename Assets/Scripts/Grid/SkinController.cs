@@ -5,6 +5,10 @@ using UnityEngine;
 public class SkinController : MonoBehaviour
 {
     [SerializeField]
+    private Grid dermisLayerPrefab;
+    [SerializeField]
+    private int dermisCount;
+    [SerializeField]
     private int skinWidth = 20;
     [SerializeField]
     private int skinHeight = 10;
@@ -13,33 +17,23 @@ public class SkinController : MonoBehaviour
     [SerializeField]
     private float lifeExpectancy = 600;
 
-    private Grid epidermis;
-    private Grid dermis;
-    private Grid hypodermis;
+    private Grid[] dermisLayers;
 
     private float age;
 
 
     public void Init()
     {
-        epidermis = GetComponentsInChildren<Grid>()[0];
-        dermis = GetComponentsInChildren<Grid>()[1];
-        hypodermis = GetComponentsInChildren<Grid>()[2];
+        dermisLayers = new Grid[dermisCount];
+        for (int i = 0; i < dermisCount; i++)
+        {
+            dermisLayers[i] = Instantiate(dermisLayerPrefab, Vector3.zero, Quaternion.identity, transform);
 
-        epidermis.GridInitWidth = skinWidth;
-        epidermis.GridInitHeight = skinHeight;
-        epidermis.CellSize = skinCellSize;
-        epidermis.Init();
-        
-        dermis.GridInitWidth = skinWidth;
-        dermis.GridInitHeight = skinHeight;
-        dermis.CellSize = skinCellSize;
-        dermis.Init();
-
-        hypodermis.GridInitWidth = skinWidth;
-        hypodermis.GridInitHeight = skinHeight;
-        hypodermis.CellSize = skinCellSize;
-        hypodermis.Init();
+            dermisLayers[i].GridInitWidth = skinWidth;
+            dermisLayers[i].GridInitHeight = skinHeight;
+            dermisLayers[i].CellSize = skinCellSize;
+            dermisLayers[i].Init();
+        }
 
         age = 0;
     }
@@ -60,5 +54,10 @@ public class SkinController : MonoBehaviour
     public Vector3 GetSize()
     {
         return new Vector2(skinWidth, skinHeight);
+    }
+
+    public Grid[] GetDermisLayers()
+    {
+        return dermisLayers;
     }
 }
