@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int maxSimultaneousTouches = 2;
     [SerializeField]
+    private float minDistanceBeforeRipping = 0.5f;
+    [SerializeField]
     private int baseRippingFactor = 1;
     [SerializeField]
     private int maxRippingFactor = 10;
@@ -17,11 +19,22 @@ public class Player : MonoBehaviour
     private Touch[] touches;
     private List<Grid.Mass> massesToMove = new List<Grid.Mass>();
 
+    private int lastTouchCount;
+    private float lastDistanceBetweenFingers;
+    private Vector2 fingersVector;
+    private float startingFingersDistance;
+    private float fingersDistance;
+
 
     public void Init(Grid[] dermisLayers)
     {
         this.dermisLayers = dermisLayers;
         touches = new Touch[maxSimultaneousTouches];
+
+        lastTouchCount = 0;
+        fingersVector = Vector3.zero;
+        startingFingersDistance = 0;
+        fingersDistance = 0;
     }
 
     void Update()
@@ -69,6 +82,26 @@ public class Player : MonoBehaviour
 
                 TouchSkin(touches[i].position, baseRippingFactor);
             }
+
+            if (Input.touchCount > 1)
+            {
+                fingersVector = touches[0].position - touches[1].position;
+                fingersDistance = fingersVector.magnitude;
+
+                if (Input.touchCount != lastTouchCount)
+                {
+                    startingFingersDistance = fingersVector.magnitude;
+                }
+
+                if (Mathf.Abs(lastDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping)
+                {
+                    TouchSkin(touches[1].position + fingersVector.normalized * (fingersDistance * 0.5f),
+                        Mathf.Clamp(fingersDistance / startingFingersDistance, baseRippingFactor, maxRippingFactor));
+                }
+                lastDistanceBetweenFingers = fingersDistance;
+            }
+
+            lastTouchCount = Input.touchCount;
 #endif
         }
     }
