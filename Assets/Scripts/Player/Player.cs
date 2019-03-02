@@ -80,7 +80,7 @@ public class Player : MonoBehaviour
             {
                 touches[i] = Input.GetTouch(i);
 
-                TouchSkin(touches[i].position, baseRippingFactor);
+                TouchSkin(GetWorldPosition(touches[i].position), baseRippingFactor);
             }
 
             if (Input.touchCount > 1)
