@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     }
 
     private Player player;
+    private Camera mainCam;
+    private SkinController skinController;
 
     private bool ready;
 
@@ -30,16 +32,23 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         player = FindObjectOfType<Player>();
-        FindObjectOfType<Grid>().Init();
+        mainCam = FindObjectOfType<Camera>();
+        skinController = FindObjectOfType<SkinController>();
 
+        skinController.Init();
         player.Init();
+
+        mainCam.transform.position += skinController.GetSize() * 0.5f;
 
         ready = true;
     }
 
     void Update()
     {
-        
+        if (ready)
+        {
+
+        }
     }
 
     public void Restart()
