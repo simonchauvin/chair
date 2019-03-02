@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private SoundController soundController;
     private Player player;
     private Camera mainCam;
     private SkinController skinController;
@@ -31,10 +32,12 @@ public class GameManager : MonoBehaviour
 
     public void Init()
     {
+        soundController = FindObjectOfType<SoundController>();
         player = FindObjectOfType<Player>();
         mainCam = FindObjectOfType<Camera>();
         skinController = FindObjectOfType<SkinController>();
 
+        soundController.Init();
         skinController.Init();
         player.Init(skinController.GetDermisLayers());
 
