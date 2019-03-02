@@ -8,6 +8,10 @@ public class Player : MonoBehaviour
     private float touchRadius = 0.5f;
     [SerializeField]
     private int maxSimultaneousTouches = 2;
+    [SerializeField]
+    private int baseRippingFactor = 1;
+    [SerializeField]
+    private int maxRippingFactor = 10;
 
     private Grid[] dermisLayers;
     private Touch[] touches;
@@ -28,13 +32,13 @@ public class Player : MonoBehaviour
             Vector3 worldPos = GetWorldPosition(Input.mousePosition);
 
             if (Input.GetButton("Fire1"))
-                TouchSkin(worldPos);
+                TouchSkin(worldPos, baseRippingFactor);
 #elif UNITY_EDITOR
             Vector3 worldPos = GetWorldPosition(Input.mousePosition);
 
             if (Input.GetButton("Fire1"))
             {
-                TouchSkin(worldPos);
+                TouchSkin(worldPos, baseRippingFactor);
             }
 
             if (Input.GetButtonDown("Fire2"))
@@ -63,7 +67,7 @@ public class Player : MonoBehaviour
             {
                 touches[i] = Input.GetTouch(i);
 
-                TouchSkin(touches[i].position);
+                TouchSkin(touches[i].position, baseRippingFactor);
             }
 #endif
         }
@@ -78,7 +82,7 @@ public class Player : MonoBehaviour
         return clickPos;
     }
 
-    private void TouchSkin(Vector3 worldPosition)
+    private void TouchSkin(Vector3 worldPosition, float rippingFactor)
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
@@ -88,7 +92,7 @@ public class Player : MonoBehaviour
             {
                 foreach (Grid.Mass m in massesToLink)
                 {
-                    m.AddForce((worldPosition - m.Position) * 4);
+                    m.AddForce((worldPosition - m.Position) * rippingFactor);
                 }
                 break;
             }
