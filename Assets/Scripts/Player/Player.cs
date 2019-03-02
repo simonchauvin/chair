@@ -71,22 +71,25 @@ public class Player : MonoBehaviour
 #elif UNITY_STANDALONE
             ProcessTearingBehaviour(GetWorldPosition(Input.mousePosition));
 #else
+            int fingerId;
             for (int i = 0; i < Input.touchCount && i < touches.Length; i++)
             {
-                touches[i] = Input.GetTouch(i);
+                fingerId = Input.GetTouch(i).fingerId;
 
-                if (touches[i].phase == TouchPhase.Began)
+                touches[fingerId] = Input.GetTouch(i);
+
+                if (touches[fingerId].phase == TouchPhase.Began)
                 {
-                    lastTouchesPosition[i] = touches[i].position;
+                    lastTouchesPosition[fingerId] = touches[fingerId].position;
                 }
-                else if (touches[i].phase == TouchPhase.Moved)
+                else if (touches[fingerId].phase == TouchPhase.Moved)
                 {
-                    touchesDeltaPosition[i] = (lastTouchesPosition[i] - touches[i].position).magnitude;
-                    lastTouchesPosition[i] = touches[i].position;
+                    touchesDeltaPosition[fingerId] = (lastTouchesPosition[fingerId] - touches[fingerId].position).magnitude;
+                    lastTouchesPosition[fingerId] = touches[fingerId].position;
                 }
 
                 // Tearing
-                TouchSkin(GetWorldPosition(touches[i].position), Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - touches[i].deltaPosition.magnitude));
+                TouchSkin(GetWorldPosition(touches[fingerId].position), Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - touches[fingerId].deltaPosition.magnitude));
             }
 
             if (Input.touchCount > 1)
