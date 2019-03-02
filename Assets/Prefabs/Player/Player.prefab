@@ -43,12 +43,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae913a702e2367499a06d7b2f38c545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  touchRadius: 1.6
+  touchRadius: 0.333
   touchDepth: 0.1
   maxSimultaneousTouches: 2
   minDistanceBeforeRipping: 0.5
   baseTearingFactor: 1
-  maxTearingFactor: 3
+  maxTearingFactor: 6
   maxTearingDeltaPosition: 40
   baseRippingFactor: 1
   maxRippingFactor: 10
