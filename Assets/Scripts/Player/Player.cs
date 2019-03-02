@@ -41,12 +41,7 @@ public class Player : MonoBehaviour
     {
         if (GameManager.Instance.IsReady())
         {
-#if UNITY_STANDALONE
-            Vector3 worldPos = GetWorldPosition(Input.mousePosition);
-
-            if (Input.GetButton("Fire1"))
-                TouchSkin(worldPos, baseRippingFactor);
-#elif UNITY_EDITOR
+#if UNITY_EDITOR
             Vector3 worldPos = GetWorldPosition(Input.mousePosition);
 
             if (Input.GetButton("Fire1"))
@@ -75,6 +70,11 @@ public class Player : MonoBehaviour
             {
                 CutSkin(worldPos);
             }
+#elif UNITY_STANDALONE
+            Vector3 worldPos = GetWorldPosition(Input.mousePosition);
+
+            if (Input.GetButton("Fire1"))
+                TouchSkin(worldPos, baseRippingFactor);
 #else
             for (int i = 0; i < Input.touchCount && i < touches.Length; i++)
             {
