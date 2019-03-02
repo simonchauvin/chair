@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
                 clickPos.z = transform.position.z;
                 grid.GetMassesCloseTo(massesToLink, clickPos, 2.0f);
                 foreach (Grid.Mass m in massesToLink)
-                    m.AddForce((clickPos - m.Position) * 4);
+                    m.AddForce((clickPos - m.Position) * 4 + new Vector3(0,0,2));
             }
 
             if (Input.GetButtonDown("Fire2"))
