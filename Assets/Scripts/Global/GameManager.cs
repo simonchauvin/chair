@@ -43,6 +43,9 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
+        Debug.Log("Restart");
+        ready = false;
+
         Init();
     }
 
