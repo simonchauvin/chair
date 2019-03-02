@@ -6,6 +6,8 @@ Shader "test/MyShader"
 	Properties
 	{
 			_MainTex("Texture", 2D) = "white" {}
+			_Smooth("Smooth mat", Range(0.0, 1.0)) = 0.5
+			_Color("Color base", Color) = (1,0.2,0.3,1)
 	}
 		SubShader
 	{
@@ -40,6 +42,8 @@ Shader "test/MyShader"
 
 					sampler2D _MainTex;
 					float4 _MainTex_ST;
+					float _Smooth;
+					float4 _Color;
 
 					v2f vert(appdata v)
 					{
@@ -58,25 +62,33 @@ Shader "test/MyShader"
 							v2f test = (v2f)0;
 							float3 normal = normalize(cross(input[1].worldPosition.xyz - input[0].worldPosition.xyz, input[2].worldPosition.xyz - input[0].worldPosition.xyz));
 							for (int i = 0; i < 3; i++) {
-									test.normal = normal;
-									test.normal = input[i].normal;
+								test.normal = lerp(normal, input[i].normal, _Smooth);
+									//test.normal = input[i].normal;
 									test.vertex = input[i].vertex;
 									test.uv = input[i].uv;
 									test.color = input[i].color;
-									OutputStream.Append(test);
-							}
+									//if(test.color.r > 2.f)
+										OutputStream.Append(test);
+							}		
 					}
 
 					fixed4 frag(v2f i) : SV_Target
 					{
 						// sample the texture
-						fixed4 col = i.color.r* fixed4(1,1,1,1);
+						fixed4 col =  (1 - i.color.r)* _Color;
+						//fixed4 col = tex2D(_MainTex, i.uv);
+						//col = fixed4(1, 1, 1, 1);
 						col.a = 1;
 
-						float3 lightDir = float3(1, 1, 0);
+						float3 lightDir = float3(1, 1, -0.2);
+						
 						float ndotl = dot(i.normal, normalize(lightDir));
 
-						return col * max(0.1, ndotl);
+						lightDir = float3(-1, 0, -0.2);
+						ndotl += dot(i.normal, normalize(lightDir));
+
+						return col * max(0.0, ndotl) ;
+						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
 				}
 				ENDCG
 		}

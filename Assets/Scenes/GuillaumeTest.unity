@@ -317,6 +317,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9145464995039298134, guid: 2c46f04f2faa8cd48998ca2f5d019463,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.3301887
+      objectReference: {fileID: 0}
+    - target: {fileID: 9145464995039298134, guid: 2c46f04f2faa8cd48998ca2f5d019463,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.1791118
+      objectReference: {fileID: 0}
+    - target: {fileID: 9145464995039298134, guid: 2c46f04f2faa8cd48998ca2f5d019463,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.1791118
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c46f04f2faa8cd48998ca2f5d019463, type: 3}
 --- !u!1 &697536817
@@ -527,6 +542,21 @@ PrefabInstance:
     - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
         type: 3}
       propertyPath: dermisCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
+        type: 3}
+      propertyPath: skinWidth
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
+        type: 3}
+      propertyPath: skinHeight
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
+        type: 3}
+      propertyPath: skinCellSize
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []

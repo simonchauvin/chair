@@ -125,7 +125,7 @@ public class Player : MonoBehaviour
             {
                 foreach (Grid.Mass m in massesToLink)
                 {
-                    m.AddForce((worldPosition - m.Position) * rippingFactor + new Vector3(0, 0, 2));
+                    m.AddForce((worldPosition - m.Position) * rippingFactor + new Vector3(0, 0, 3));
                 }
                 break;
             }
