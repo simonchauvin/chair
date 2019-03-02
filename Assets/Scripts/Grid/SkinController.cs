@@ -9,21 +9,23 @@ public class SkinController : MonoBehaviour
     [SerializeField]
     private int dermisCount;
     [SerializeField]
-    private int skinWidth = 20;
-    [SerializeField]
-    private int skinHeight = 10;
-    [SerializeField]
-    private float skinCellSize = 1;
+    [Range(0f, 1f)]
+    private float skinResolution;
     [SerializeField]
     private float lifeExpectancy = 600;
 
     private Grid[] dermisLayers;
 
     private float age;
+    private int skinWidth;
+    private int skinHeight;
 
 
-    public void Init()
+    public void Init(Resolution resolution)
     {
+        skinWidth = Mathf.FloorToInt(resolution.width * skinResolution) + 2;
+        skinHeight = Mathf.FloorToInt(resolution.height * skinResolution) + 2;
+
         dermisLayers = new Grid[dermisCount];
         for (int i = 0; i < dermisCount; i++)
         {
@@ -31,7 +33,7 @@ public class SkinController : MonoBehaviour
 
             dermisLayers[i].GridInitWidth = skinWidth;
             dermisLayers[i].GridInitHeight = skinHeight;
-            dermisLayers[i].CellSize = skinCellSize;
+            dermisLayers[i].CellSize = 1;
             dermisLayers[i].Init();
         }
 

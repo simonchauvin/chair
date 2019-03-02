@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
         skinController = FindObjectOfType<SkinController>();
 
         soundController.Init();
-        skinController.Init();
+        skinController.Init(Screen.currentResolution);
         player.Init(skinController.GetDermisLayers());
 
         mainCam.transform.position += skinController.GetSize() * 0.5f;
