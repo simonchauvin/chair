@@ -94,10 +94,11 @@ public class Grid : MonoBehaviour
     {
         if (reset)
             found.Clear();
-        foreach (Spring m in Springs)
+        foreach (Spring s in Springs)
         {
-            if ((m.Position - point).sqrMagnitude < distance * distance)
-                found.Add(m);
+            Vector3.Dot(s.B.Position - s.A.Position, s.B.Position - point);
+            //if ((m.Position - point).sqrMagnitude < distance * distance)
+               // found.Add(m);
         }
 
     }
