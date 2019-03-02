@@ -63,7 +63,7 @@ Shader "test/MyShader"
 							float3 normal = normalize(cross(input[1].worldPosition.xyz - input[0].worldPosition.xyz, input[2].worldPosition.xyz - input[0].worldPosition.xyz));
 							for (int i = 0; i < 3; i++) {
 								test.normal = lerp(normal, input[i].normal, _Smooth);
-									//test.normal = input[i].normal;
+									
 									test.vertex = input[i].vertex;
 									test.uv = input[i].uv;
 									test.color = input[i].color;
@@ -75,8 +75,8 @@ Shader "test/MyShader"
 					fixed4 frag(v2f i) : SV_Target
 					{
 						// sample the texture
-						fixed4 col =  (1 - i.color.r)* _Color;
-						//fixed4 col = tex2D(_MainTex, i.uv);
+						fixed4 col =  (1 - i.color.r) * _Color;
+						fixed4 colCrack = tex2D(_MainTex, i.uv);
 						//col = fixed4(1, 1, 1, 1);
 						col.a = 1;
 
@@ -86,8 +86,8 @@ Shader "test/MyShader"
 
 						lightDir = float3(-1, 0, -0.2);
 						ndotl += dot(i.normal, normalize(lightDir));
-
-						return col * max(0.0, ndotl) ;
+						float4 crack = i.color.b * saturate(1 - (colCrack*smoothstep(0, 1, colCrack.r)*smoothstep(0, 1, colCrack.r) * 2));
+						return saturate((col * max(0.0, ndotl)) - crack);
 						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
 				}
 				ENDCG

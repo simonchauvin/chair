@@ -48,7 +48,7 @@ public class GridRenderer : MonoBehaviour
             for (int x = 0; x <= xCount; x++, i++)
             {
                 vertices[i] = new Vector3((float)x  * size, (float)y  * size, 0);
-                uv[i] = new Vector2((float)x / xCount, (float)y / yCount);
+                uv[i] = new Vector2((float)x / xCount, (float)y / xCount);
                 colors[i] = new Color(1, 0, 0, 1);
             }
         }
@@ -98,18 +98,19 @@ public class GridRenderer : MonoBehaviour
                 //Recup le plus proche
                 Grid.Mass m = G.GetClosestMassTo( basePos, CellSize);
 
-                colors[i].r = 0.4f;
+                colors[i].r = 1.0f;
                 if (m != null)
-                {
+                {                   
                     float dist = (basePos - (m.Position - transform.position)).magnitude;
                     //dist = Mathf.Max(0.01f, dist);
                     basePos = m.Position - transform.position;
-                    
+                    colors[i].b = m.GetFatigue()/10;
                     colors[i].r = dist;
                 }
                 else
                 {
-                    colors[i].r = CellSize; 
+                    colors[i].r = CellSize;
+                    colors[i].b = 0;
                 }
 
                 
