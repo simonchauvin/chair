@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float touchRadius = 0.5f;
     [SerializeField]
+    private float touchDepth = 0.5f;
+    [SerializeField]
     private int maxSimultaneousTouches = 2;
     [SerializeField]
     private float minDistanceBeforeRipping = 0.5f;
@@ -27,9 +29,9 @@ public class Player : MonoBehaviour
 
     private int lastTouchCount;
     private Vector3 lastClickPosition;
-    private float clickDeltaPosition;
+    private Vector3 clickDeltaPosition;
     private Vector2[] lastTouchesPosition;
-    private float[] touchesDeltaPosition;
+    private Vector2[] touchesDeltaPosition;
     private float lastDistanceBetweenFingers;
     private Vector2 fingersVector;
     private float startingFingersDistance;
@@ -42,9 +44,9 @@ public class Player : MonoBehaviour
         touches = new Touch[maxSimultaneousTouches];
 
         lastTouchCount = 0;
-        clickDeltaPosition = 0;
+        clickDeltaPosition = Vector3.zero;
         lastTouchesPosition = new Vector2[maxSimultaneousTouches];
-        touchesDeltaPosition = new float[maxSimultaneousTouches];
+        touchesDeltaPosition = new Vector2[maxSimultaneousTouches];
         fingersVector = Vector3.zero;
         startingFingersDistance = 0;
         fingersDistance = 0;
@@ -84,12 +86,12 @@ public class Player : MonoBehaviour
                 }
                 else if (touches[fingerId].phase == TouchPhase.Moved)
                 {
-                    touchesDeltaPosition[fingerId] = (lastTouchesPosition[fingerId] - touches[fingerId].position).magnitude;
+                    touchesDeltaPosition[fingerId] = touches[fingerId].position - lastTouchesPosition[fingerId];
                     lastTouchesPosition[fingerId] = touches[fingerId].position;
                 }
 
                 // Tearing
-                TouchSkin(GetWorldPosition(touches[fingerId].position), Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - touches[fingerId].deltaPosition.magnitude));
+                TouchSkin(GetWorldPosition(touches[fingerId].position), touchesDeltaPosition[fingerId].normalized, Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - touches[fingerId].deltaPosition.magnitude));
             }
 
             if (Input.touchCount > 1)
@@ -104,7 +106,13 @@ public class Player : MonoBehaviour
 
                 if (Mathf.Abs(lastDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
                 {
-                    TouchSkin(touches[1].position + fingersVector.normalized * (fingersDistance * 0.5f),
+                    Vector3 center = touches[1].position + fingersVector.normalized * (fingersDistance * 0.5f);
+                    TouchSkin(center,
+                        (touches[0].position - touches[1].position).normalized,
+                        Mathf.Clamp(fingersDistance / startingFingersDistance, baseRippingFactor, maxRippingFactor));
+
+                    TouchSkin(center,
+                        (touches[1].position - touches[0].position).normalized,
                         Mathf.Clamp(fingersDistance / startingFingersDistance, baseRippingFactor, maxRippingFactor));
                 }
                 lastDistanceBetweenFingers = fingersDistance;
@@ -126,11 +134,11 @@ public class Player : MonoBehaviour
         {
             if ((Input.mousePosition - lastClickPosition).magnitude > Mathf.Epsilon)
             {
-                clickDeltaPosition = (lastClickPosition - Input.mousePosition).magnitude;
+                clickDeltaPosition = Input.mousePosition - lastClickPosition;
                 lastClickPosition = Input.mousePosition;
             }
 
-            TouchSkin(worldPosition, Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - clickDeltaPosition));
+            TouchSkin(worldPosition, clickDeltaPosition.normalized, Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - clickDeltaPosition.magnitude));
         }
 
         if (Input.GetButtonDown("Fire2"))
@@ -155,7 +163,7 @@ public class Player : MonoBehaviour
         return clickPos;
     }
 
-    private void TouchSkin(Vector3 worldPosition, float rippingFactor)
+    private void TouchSkin(Vector3 worldPosition, Vector3 direction, float rippingFactor)
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
@@ -165,7 +173,7 @@ public class Player : MonoBehaviour
             {
                 foreach (Grid.Mass m in massesToLink)
                 {
-                    m.AddForce((worldPosition - m.Position) * rippingFactor + new Vector3(0, 0, 3));
+                    m.AddForce(direction * rippingFactor + new Vector3(0, 0, touchDepth));
                 }
                 break;
             }
