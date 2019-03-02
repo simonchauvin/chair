@@ -45,5 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   touchRadius: 2
   maxSimultaneousTouches: 2
+  minDistanceBeforeRipping: 0.5
+  baseTearingFactor: 1
+  maxTearingFactor: 2
   baseRippingFactor: 1
   maxRippingFactor: 10
