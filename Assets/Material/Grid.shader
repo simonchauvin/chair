@@ -59,6 +59,7 @@ Shader "test/MyShader"
 							float3 normal = normalize(cross(input[1].worldPosition.xyz - input[0].worldPosition.xyz, input[2].worldPosition.xyz - input[0].worldPosition.xyz));
 							for (int i = 0; i < 3; i++) {
 									test.normal = normal;
+									test.normal = input[i].normal;
 									test.vertex = input[i].vertex;
 									test.uv = input[i].uv;
 									test.color = input[i].color;
@@ -69,12 +70,13 @@ Shader "test/MyShader"
 					fixed4 frag(v2f i) : SV_Target
 					{
 						// sample the texture
-						fixed4 col = i.color;
+						fixed4 col = i.color.r* fixed4(1,1,1,1);
+						col.a = 1;
 
 						float3 lightDir = float3(1, 1, 0);
 						float ndotl = dot(i.normal, normalize(lightDir));
 
-						return col;// *ndotl;
+						return col * max(0.1, ndotl);
 				}
 				ENDCG
 		}
