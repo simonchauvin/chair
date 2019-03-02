@@ -13,6 +13,10 @@ public class Grid : MonoBehaviour
     public int GridInitHeight = 10;
     public float CellSize = 1;
 
+    public Transform DebugObject;
+    public bool ShowDebugSprings = true;
+    public bool ShowDebugObjects = true;
+
     public float BaseMass = 1;
     public float BaseElasticity = 1;
     public float BaseSpringMinLength = 0.1f; //Pour une base de 1
@@ -62,6 +66,7 @@ public class Grid : MonoBehaviour
         public Vector3 Position;
         public float M = 1;
         public bool Fixed = false;
+        
 
         private Vector3 Forces;
         private Vector3 PrevForce;
@@ -69,6 +74,7 @@ public class Grid : MonoBehaviour
         public int NbSpringsAttached = 0;
         private bool KillMe = false;
         private Grid G;
+        private Transform DebugObject;
 
         public Mass(Grid g)
         {
@@ -87,6 +93,12 @@ public class Grid : MonoBehaviour
 
         public void Update(float deltaTime)
         {
+            if (G.DebugObject != null && DebugObject == null)
+            {
+                DebugObject = GameObject.Instantiate<Transform>(G.DebugObject);
+                DebugObject.localScale = Vector3.one * G.CellSize / 3.0f;
+            }
+
             if (Fixed)
                 return;
 
@@ -97,6 +109,14 @@ public class Grid : MonoBehaviour
 
             Position += Forces * deltaTime;
             Forces = new Vector3();
+
+            if (DebugObject)
+            {
+                DebugObject.position = Position;
+                DebugObject.GetComponent<MeshRenderer>().enabled = G.ShowDebugObjects;
+            }    
+                    
+            
 
             if (NbSpringsAttached <= 0)
                 KillMe = true;            
@@ -308,16 +328,21 @@ public class Grid : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        foreach (Mass m in Masses)
+        /*foreach (Mass m in Masses)
         {
             Gizmos.DrawSphere(m.Position, this.CellSize/3.0f);
 
-        }
-        foreach (Spring s in Springs)
+        }*/
+
+        if (ShowDebugSprings)
         {
-             Gizmos.color = Color.Lerp(Color.white, Color.red, s.GetForcesStrength());
-            Gizmos.DrawLine(s.A.Position, s.B.Position);
+            foreach (Spring s in Springs)
+            {
+                Gizmos.color = Color.Lerp(Color.white, Color.red, s.GetForcesStrength());
+                Gizmos.DrawLine(s.A.Position, s.B.Position);
+            }
         }
+        
     }
 
 
