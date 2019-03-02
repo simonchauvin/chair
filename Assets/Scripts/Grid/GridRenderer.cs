@@ -22,6 +22,7 @@ public class GridRenderer : MonoBehaviour
 
 
     Vector3[] vertices;
+    Color[] colors;
     int Width;
     int Height;
     float CellSize;
@@ -35,6 +36,7 @@ public class GridRenderer : MonoBehaviour
         mesh.MarkDynamic();
 
         vertices = new Vector3[(xCount + 1) * (yCount + 1)];
+        colors = new Color[(xCount + 1) * (yCount + 1)];
         Width = xCount + 1;
         Height = yCount + 1;
         CellSize = size;
@@ -47,9 +49,11 @@ public class GridRenderer : MonoBehaviour
             {
                 vertices[i] = new Vector3((float)x  * size, (float)y  * size, 0);
                 uv[i] = new Vector2((float)x / xCount, (float)y / yCount);
+                colors[i] = new Color(1, 0, 0, 1);
             }
         }
         mesh.vertices = vertices;
+        mesh.colors = colors;
         mesh.uv = uv;
 
         int[] triangles = new int[xCount * yCount * 6];
@@ -65,6 +69,7 @@ public class GridRenderer : MonoBehaviour
         }
 
         mesh.triangles = triangles;
+        
 
         mesh.RecalculateNormals();
 
@@ -93,18 +98,27 @@ public class GridRenderer : MonoBehaviour
                 //Recup le plus proche
                 Grid.Mass m = G.GetClosestMassTo( basePos, CellSize);
 
+                colors[i].r = 0.4f;
                 if (m != null)
                 {
                     basePos = m.Position - transform.position;
                 }
+                else
+                {
+                    colors[i].r = 0.0f;
+                }
+
                 
-               // basePos.z = vertices[i].z;
+
+                // basePos.z = vertices[i].z;
                 vertices[i] = basePos;
+                
                 i++;
             }
         }
         
         mesh.vertices = vertices;
+        mesh.colors = colors;
         mesh.MarkDynamic();
         mesh.RecalculateNormals();
 

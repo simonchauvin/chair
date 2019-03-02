@@ -26,6 +26,7 @@ Shader "test/MyShader"
 							float4 vertex : POSITION;
 							float3 normal : NORMAL;
 							float2 uv : TEXCOORD0;
+							float4 color : COLOR;
 					};
 
 					struct v2f
@@ -34,6 +35,7 @@ Shader "test/MyShader"
 							float3 normal : NORMAL;
 							float2 uv : TEXCOORD0;
 							float3 worldPosition : TEXCOORD1;
+							float4 color : COLOR;
 					};
 
 					sampler2D _MainTex;
@@ -46,6 +48,7 @@ Shader "test/MyShader"
 							o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 							o.normal = v.normal;
 							o.worldPosition = mul(unity_ObjectToWorld, v.vertex).xyz;
+							o.color = v.color;
 							return o;
 					}
 
@@ -58,6 +61,7 @@ Shader "test/MyShader"
 									test.normal = normal;
 									test.vertex = input[i].vertex;
 									test.uv = input[i].uv;
+									test.color = input[i].color;
 									OutputStream.Append(test);
 							}
 					}
@@ -65,12 +69,12 @@ Shader "test/MyShader"
 					fixed4 frag(v2f i) : SV_Target
 					{
 						// sample the texture
-						fixed4 col = tex2D(_MainTex, i.uv);
+						fixed4 col = i.color;
 
 						float3 lightDir = float3(1, 1, 0);
 						float ndotl = dot(i.normal, normalize(lightDir));
 
-						return col * ndotl;
+						return col;// *ndotl;
 				}
 				ENDCG
 		}
