@@ -4,69 +4,69 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private Grid grid;
+    [SerializeField]
+    private float touchRadius = 0.5f;
+    [SerializeField]
+    private int maxSimultaneousTouches = 2;
+
+    private Grid[] dermisLayers;
+    private Touch[] touches;
     private List<Grid.Mass> massesToMove = new List<Grid.Mass>();
 
 
-    public void Init(Grid grid)
+    public void Init(Grid[] dermisLayers)
     {
-        this.grid = grid;
+        this.dermisLayers = dermisLayers;
+        touches = new Touch[maxSimultaneousTouches];
     }
 
     void Update()
     {
         if (GameManager.Instance.IsReady())
         {
+#if UNITY_EDITOR || UNITY_STANDALONE
             if (Input.GetButton("Fire1"))
+                TouchSkin(Input.mousePosition);
+#else
+            for (int i = 0; i < Input.touchCount && i < touches.Length; i++)
             {
-                List<Grid.Mass> massesToLink = new List<Grid.Mass>();
-                Vector3 clickPosScreen = Input.mousePosition;
-                clickPosScreen.z = Mathf.Abs(Camera.main.transform.position.z);
-                Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
-                clickPos.z = transform.position.z;
-                grid.GetMassesCloseTo(massesToLink, clickPos, 2.0f);
+                touches[i] = Input.GetTouch(i);
+
+                TouchSkin(touches[i].position);
+            }
+#endif
+        }
+    }
+
+    private void TouchSkin(Vector3 screenPosition)
+    {
+        screenPosition.z = Mathf.Abs(Camera.main.transform.position.z);
+        Vector3 clickPos = Camera.main.ScreenToWorldPoint(screenPosition);
+        clickPos.z = transform.position.z;
+
+        for (int j = 0; j < dermisLayers.Length; j++)
+        {
+            List<Grid.Mass> massesToLink = new List<Grid.Mass>();
+            dermisLayers[j].GetMassesCloseTo(massesToLink, clickPos, touchRadius);
+            if (massesToLink.Count > 0)
+            {
                 foreach (Grid.Mass m in massesToLink)
+                {
                     m.AddForce((clickPos - m.Position) * 4);
-            }
-
-            if (Input.GetButtonDown("Fire2"))
-            {
-
-                Vector3 clickPosScreen = Input.mousePosition;
-                clickPosScreen.z = Mathf.Abs(Camera.main.transform.position.z);
-                Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
-                clickPos.z = transform.position.z;
-                grid.GetMassesCloseTo(massesToMove, clickPos, 0.5f);
-            }
-
-            if (Input.GetButton("Fire2"))
-            {
-                Vector3 clickPosScreen = Input.mousePosition;
-                clickPosScreen.z = Mathf.Abs(Camera.main.transform.position.z);
-                Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
-                clickPos.z = transform.position.z;
-
-                foreach (Grid.Mass m in massesToMove)
-                {
-                    Vector3 force = (clickPos - m.Position) * 2;
-                    m.AddForce(force);
                 }
+                break;
             }
+        }
+    }
 
-            if (Input.GetButtonDown("Fire3"))
+    private void OnDrawGizmos()
+    {
+        if (Application.isEditor && Application.isPlaying)
+        {
+            Gizmos.color = Color.green;
+            for (int i = 0; i < touches.Length; i++)
             {
-
-                Vector3 clickPosScreen = Input.mousePosition;
-                clickPosScreen.z = Mathf.Abs(Camera.main.transform.position.z);
-                Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
-                clickPos.z = transform.position.z;
-                List<Grid.Spring> springsToKill = new List<Grid.Spring>();
-                grid.GetSpringsCloseTo(springsToKill, clickPos, 0.2f);
-
-                foreach (Grid.Spring s in springsToKill)
-                {
-                    s.Detach();
-                }
+                Gizmos.DrawWireSphere(touches[i].position, touchRadius);
             }
         }
     }
