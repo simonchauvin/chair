@@ -23,7 +23,39 @@ public class Grid : MonoBehaviour
     List<Mass> Masses = new List<Mass>();
     List<Spring> Springs = new List<Spring>();
 
-    
+    public void Init()
+    {
+        Masses.Clear();
+        Springs.Clear();
+
+        for (int x = 0; x < GridInitWidth; x++)
+        {
+            for (int y = 0; y < GridInitHeight; y++)
+            {
+                Mass m = new Mass(this);
+                m.Position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
+
+                if (x == 0 || y == 0 || x == GridInitWidth - 1 || y == GridInitHeight - 1)
+                    m.Fixed = true;
+
+                Masses.Add(m);
+            }
+        }
+
+        for (int x = 0; x < GridInitWidth; x++)
+        {
+            for (int y = 0; y < GridInitHeight; y++)
+            {
+                Vector3 position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
+
+                List<Mass> massesToLink = new List<Mass>();
+                GetMassesCloseTo(massesToLink, position, 0.01f);
+                Mass m = massesToLink[0];
+                m.AttachToNeighbor(Mathf.Sqrt(2 * (this.CellSize * this.CellSize)) * 1.01f);
+            }
+        }
+    }
+
 
     public class Mass
     {
@@ -245,32 +277,7 @@ public class Grid : MonoBehaviour
     List<Spring> listTemp = new List<Spring>();
     void Start()
     {
-        for(int x=0;x< GridInitWidth; x++)
-        {
-            for (int y = 0; y < GridInitHeight; y++)
-            {
-                Mass m = new Mass(this);
-                m.Position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
-
-                if (x == 0 || y == 0 || x == GridInitWidth - 1 || y == GridInitHeight - 1)
-                    m.Fixed = true;
-
-                Masses.Add(m);
-            }
-        }
-
-        for (int x = 0; x < GridInitWidth; x++)
-        {
-            for (int y = 0; y < GridInitHeight; y++)
-            {
-                Vector3 position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
-
-                List<Mass> massesToLink = new List<Mass>();
-                GetMassesCloseTo(massesToLink, position, 0.01f);
-                Mass m = massesToLink[0];
-                m.AttachToNeighbor(Mathf.Sqrt(2 * (this.CellSize * this.CellSize)) * 1.01f);
-            }
-        }
+        
     }
 
     private static bool WantsToDie(Spring s)

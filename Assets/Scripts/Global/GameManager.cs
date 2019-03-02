@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         player = FindObjectOfType<Player>();
+        FindObjectOfType<Grid>().Init();
 
         player.Init();
 
