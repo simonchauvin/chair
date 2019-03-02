@@ -651,25 +651,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
-        type: 3}
-      propertyPath: skinWidth
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
-        type: 3}
-      propertyPath: skinHeight
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
-        type: 3}
-      propertyPath: skinCellSize
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
-        type: 3}
-      propertyPath: dermisCount
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ce12b20c0164ef4796987d867adebef, type: 3}
