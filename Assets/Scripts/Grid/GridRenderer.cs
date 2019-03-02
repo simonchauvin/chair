@@ -88,8 +88,8 @@ public class GridRenderer : MonoBehaviour
             {
                 basePos.x = x * CellSize;
                 basePos.y = y * CellSize;
-                basePos.z = 0;
-                
+                basePos.z = vertices[i].z;
+
                 //Recup le plus proche
                 Grid.Mass m = G.GetClosestMassTo( basePos, CellSize);
 
