@@ -27,7 +27,7 @@ public class SkinController : MonoBehaviour
         dermisLayers = new Grid[dermisCount];
         for (int i = 0; i < dermisCount; i++)
         {
-            dermisLayers[i] = Instantiate(dermisLayerPrefab, Vector3.zero, Quaternion.identity, transform);
+            dermisLayers[i] = Instantiate(dermisLayerPrefab, new Vector3(0, 0, i), Quaternion.identity, transform);
 
             dermisLayers[i].GridInitWidth = skinWidth;
             dermisLayers[i].GridInitHeight = skinHeight;
