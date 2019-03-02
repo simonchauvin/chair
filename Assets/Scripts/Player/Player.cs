@@ -24,9 +24,40 @@ public class Player : MonoBehaviour
     {
         if (GameManager.Instance.IsReady())
         {
-#if UNITY_EDITOR || UNITY_STANDALONE
+#if UNITY_STANDALONE
+            Vector3 worldPos = GetWorldPosition(Input.mousePosition);
+
             if (Input.GetButton("Fire1"))
-                TouchSkin(Input.mousePosition);
+                TouchSkin(worldPos);
+#elif UNITY_EDITOR
+            Vector3 worldPos = GetWorldPosition(Input.mousePosition);
+
+            if (Input.GetButton("Fire1"))
+            {
+                TouchSkin(worldPos);
+            }
+
+            if (Input.GetButtonDown("Fire2"))
+            {
+                for (int j = 0; j < dermisLayers.Length; j++)
+                {
+                    dermisLayers[j].GetMassesCloseTo(massesToMove, worldPos, 0.5f);
+                    if (massesToMove.Count > 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (Input.GetButton("Fire2"))
+            {
+                SelectSkinNode(worldPos);
+            }
+
+            if (Input.GetButtonDown("Fire3"))
+            {
+                CutSkin(worldPos);
+            }
 #else
             for (int i = 0; i < Input.touchCount && i < touches.Length; i++)
             {
@@ -38,21 +69,52 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void TouchSkin(Vector3 screenPosition)
+    private Vector3 GetWorldPosition(Vector3 screenPosition)
     {
         screenPosition.z = Mathf.Abs(Camera.main.transform.position.z);
         Vector3 clickPos = Camera.main.ScreenToWorldPoint(screenPosition);
         clickPos.z = transform.position.z;
 
+        return clickPos;
+    }
+
+    private void TouchSkin(Vector3 worldPosition)
+    {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
             List<Grid.Mass> massesToLink = new List<Grid.Mass>();
-            dermisLayers[j].GetMassesCloseTo(massesToLink, clickPos, touchRadius);
+            dermisLayers[j].GetMassesCloseTo(massesToLink, worldPosition, touchRadius);
             if (massesToLink.Count > 0)
             {
                 foreach (Grid.Mass m in massesToLink)
                 {
-                    m.AddForce((clickPos - m.Position) * 4);
+                    m.AddForce((worldPosition - m.Position) * 4);
+                }
+                break;
+            }
+        }
+    }
+
+    private void SelectSkinNode(Vector3 worldPosition)
+    {
+        foreach (Grid.Mass m in massesToMove)
+        {
+            Vector3 force = (worldPosition - m.Position) * 2;
+            m.AddForce(force);
+        }
+    }
+
+    private void CutSkin(Vector3 worldPosition)
+    {
+        for (int j = 0; j < dermisLayers.Length; j++)
+        {
+            List<Grid.Spring> springsToKill = new List<Grid.Spring>();
+            dermisLayers[j].GetSpringsCloseTo(springsToKill, worldPosition, touchRadius);
+            if (springsToKill.Count > 0)
+            {
+                foreach (Grid.Spring s in springsToKill)
+                {
+                    s.Detach();
                 }
                 break;
             }
