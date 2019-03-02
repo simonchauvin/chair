@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dermisLayerPrefab: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
     type: 3}
-  dermisCount: 3
+  dermisCount: 2
   skinWidth: 40
   skinHeight: 20
   skinCellSize: 1
