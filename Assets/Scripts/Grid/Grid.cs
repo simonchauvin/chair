@@ -27,6 +27,8 @@ public class Grid : MonoBehaviour
     List<Mass> Masses = new List<Mass>();
     List<Spring> Springs = new List<Spring>();
 
+    private Buckets<Mass> Buckets = new Buckets<Mass>();
+
     public void Init()
     {
         Masses.Clear();
@@ -40,11 +42,16 @@ public class Grid : MonoBehaviour
                 m.Position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
 
                 if (x == 0 || y == 0 || x == GridInitWidth - 1 || y == GridInitHeight - 1)
-                    m.Fixed = true;
+                    m.Fixed = true; 
 
                 Masses.Add(m);
             }
         }
+
+        int nbCellX = GridInitWidth ;
+        int nbCellY = GridInitHeight;
+        Buckets.Create(nbCellX, nbCellY, (GridInitWidth * CellSize) / nbCellX, (GridInitHeight * CellSize) / nbCellY);
+        PutMassesInBuckets();
 
         for (int x = 0; x < GridInitWidth; x++)
         {
@@ -55,9 +62,12 @@ public class Grid : MonoBehaviour
                 List<Mass> massesToLink = new List<Mass>();
                 GetMassesCloseTo(massesToLink, position, 0.01f);
                 Mass m = massesToLink[0];
-                m.AttachToNeighbor(Mathf.Sqrt(2 * (this.CellSize * this.CellSize)) * 1.01f);
+                //m.AttachToNeighbor(Mathf.Sqrt(2 * (this.CellSize * this.CellSize)) * 1.01f);
+                m.AttachToNeighbor(this.CellSize * 1.01f);
             }
         }
+
+        
     }
 
 
@@ -93,7 +103,7 @@ public class Grid : MonoBehaviour
 
         public void Update(float deltaTime)
         {
-            if (G.DebugObject != null && DebugObject == null)
+            if (G.DebugObject != null && G.ShowDebugObjects && DebugObject == null)
             {
                 DebugObject = GameObject.Instantiate<Transform>(G.DebugObject);
                 DebugObject.localScale = Vector3.one * G.CellSize / 3.0f;
@@ -113,7 +123,7 @@ public class Grid : MonoBehaviour
             if (DebugObject)
             {
                 DebugObject.position = Position;
-                DebugObject.GetComponent<MeshRenderer>().enabled = G.ShowDebugObjects;
+                //DebugObject.GetComponent<MeshRenderer>().enabled = G.ShowDebugObjects;
             }    
                     
             
@@ -190,7 +200,7 @@ public class Grid : MonoBehaviour
 
                     
             //On applique la force
-            Vector3 dirNorm = dir.normalized;
+            Vector3 dirNorm = dir / lengthCur;
             A.AddForce(dirNorm * Force);
             B.AddForce(dirNorm *(-Force));
         }
@@ -225,18 +235,49 @@ public class Grid : MonoBehaviour
         }
     }
 
-   
+    private void PutMassesInBuckets()
+    {
+        Buckets.Clear();
+        foreach(Mass m in Masses)
+        {
+            Vector3 position = m.Position - transform.position;
+            Buckets.AddToBucket(position.x, position.y, m);
+        }
+    }
 
+    Buckets<Grid.Mass>.Bucket tempNeighbours = new Buckets<Grid.Mass>.Bucket(); 
     public void GetMassesCloseTo(List<Mass> found, Vector3 point, float distance, bool reset = true)
     {
         if (reset)
             found.Clear();
-        foreach (Mass m in Masses)
+        Vector3 posLocale = point - transform.position;
+        Buckets.GetNeighbours(tempNeighbours,posLocale.x, posLocale.y);
+        for (int i=0;i< tempNeighbours.Count;i++)
         {
+            Mass m = tempNeighbours.Trucs[i];
             if ((m.Position - point).sqrMagnitude < distance * distance)
                 found.Add(m);
         }
 
+    }
+
+    public Mass GetClosestMassTo(Vector3 point, float distance, bool reset = true)
+    {
+        Vector3 posLocale = point - transform.position;
+        Buckets.GetNeighbours(tempNeighbours, posLocale.x, posLocale.y);
+        float distanceMin = distance * distance;
+        Mass bestM = null;
+        for (int i = 0; i < tempNeighbours.Count; i++)
+        {
+            Mass m = tempNeighbours.Trucs[i];
+            float distSq = (m.Position - point).sqrMagnitude;
+            if (distSq < distanceMin)
+            {
+                distanceMin = distSq;
+                bestM = m;
+            }
+        }
+        return bestM;
     }
 
     public void GetSpringsCloseTo(List<Spring> found, Vector3 point, float distance, bool reset = true)
@@ -311,7 +352,7 @@ public class Grid : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         foreach (Spring s in Springs)
         {
@@ -323,7 +364,9 @@ public class Grid : MonoBehaviour
         Masses.RemoveAll(WantsToDie);
 
         foreach (Mass m in Masses)
-            m.Update(Time.fixedDeltaTime);
+            m.Update(Time.deltaTime);
+
+        PutMassesInBuckets();
     }
 
     private void OnDrawGizmos()
