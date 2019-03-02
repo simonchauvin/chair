@@ -129,7 +129,14 @@ public class Grid : MonoBehaviour
             
 
             if (NbSpringsAttached <= 0)
-                KillMe = true;            
+            {
+                if (DebugObject)
+                {
+                    Destroy(DebugObject.gameObject);
+                }
+                KillMe = true;
+            }
+                          
         }
 
         public void AttachToNeighbor(float distance)
@@ -142,6 +149,8 @@ public class Grid : MonoBehaviour
                 G.AddSpring(this, m2);
             }
         }
+
+      
     }
 
     public class Spring
@@ -156,6 +165,9 @@ public class Grid : MonoBehaviour
         private bool KillMe = false;
         private Grid G;
         private float Force;
+        private float PrevForce;
+        private float Fatigue;
+        private float SpeedFatigue = 0.5f;
 
         public Spring(Grid g)
         {
@@ -194,8 +206,15 @@ public class Grid : MonoBehaviour
             if (Force > G.BaseMaxSpringForce)
                 Force = G.BaseMaxSpringForce;
 
+
+            if(Mathf.Abs(Force - PrevForce)*Time.deltaTime < 0.2f)
+            {
+                Fatigue += ((Force - PrevForce) / (Time.deltaTime*100)) * SpeedFatigue;
+            }
+            PrevForce = Force;
+
             //Kill
-            if (lengthCur > MaxLength)
+            if (lengthCur > MaxLength || Fatigue > 1)
                 Detach();
 
                     
@@ -207,15 +226,24 @@ public class Grid : MonoBehaviour
 
         public float distanceToMe(Vector3 v)
         {
+
             Vector3 AB = B.Position - A.Position;
             Vector3 BV = (v - B.Position);
             Vector3 AV = (v - A.Position);
+            AB.z = 0;
+            BV.z = 0;
+            AV.z = 0;
             if (Vector3.Dot(AB, AV) <= 0)
                 return float.PositiveInfinity; //AV.magnitude;
             if (Vector3.Dot(AB, BV) >= 0)
                 return float.PositiveInfinity; //BV.magnitude
 
             return (Vector3.Cross(AB, AV).magnitude / AB.magnitude);
+        }
+
+        public float GetFatigue()
+        {
+            return Fatigue;
         }
 
         public void Detach()
@@ -251,7 +279,7 @@ public class Grid : MonoBehaviour
         if (reset)
             found.Clear();
         Vector3 posLocale = point - transform.position;
-        Buckets.GetNeighbours(tempNeighbours,posLocale.x, posLocale.y);
+        Buckets.GetNeighbours(tempNeighbours,posLocale.x, posLocale.y, distance);
         for (int i=0;i< tempNeighbours.Count;i++)
         {
             Mass m = tempNeighbours.Trucs[i];
@@ -264,7 +292,7 @@ public class Grid : MonoBehaviour
     public Mass GetClosestMassTo(Vector3 point, float distance, bool reset = true)
     {
         Vector3 posLocale = point - transform.position;
-        Buckets.GetNeighbours(tempNeighbours, posLocale.x, posLocale.y);
+        Buckets.GetNeighbours(tempNeighbours, posLocale.x, posLocale.y, distance);
         float distanceMin = distance * distance;
         Mass bestM = null;
         for (int i = 0; i < tempNeighbours.Count; i++)
@@ -376,12 +404,12 @@ public class Grid : MonoBehaviour
             Gizmos.DrawSphere(m.Position, this.CellSize/3.0f);
 
         }*/
-
         if (ShowDebugSprings)
         {
             foreach (Spring s in Springs)
             {
-                Gizmos.color = Color.Lerp(Color.white, Color.red, s.GetForcesStrength());
+                //Gizmos.color = Color.Lerp(Color.white, Color.red, s.GetForcesStrength());
+                Gizmos.color = Color.Lerp(Color.white, Color.red, s.GetFatigue());
                 Gizmos.DrawLine(s.A.Position, s.B.Position);
             }
         }

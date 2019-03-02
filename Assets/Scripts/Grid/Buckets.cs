@@ -73,17 +73,19 @@ public class Buckets<T>
             Cells[i].Clear();
     }
 
-    public void GetNeighbours(Bucket Neighbours, float xPos, float yPos)
+    public void GetNeighbours(Bucket Neighbours, float xPos, float yPos, float distance)
     {
 
         Neighbours.Clear();
         int bX = Mathf.FloorToInt(xPos / CellWidth);
         int bY = Mathf.FloorToInt(yPos / CellHeight);
+        int nbCellDistX = Mathf.CeilToInt(distance / CellWidth);
+        int nbCellDistY = Mathf.CeilToInt(distance / CellHeight);
 
-        int bXStart = System.Math.Max(0, bX - 1);
-        int bYStart = System.Math.Max(0, bY - 1);
-        int bXEnd = System.Math.Min(XCount-1, bX + 1);
-        int bYEnd = System.Math.Min(YCount-1, bY + 1);
+        int bXStart = System.Math.Max(0, bX - nbCellDistX);
+        int bYStart = System.Math.Max(0, bY - nbCellDistY);
+        int bXEnd = System.Math.Min(XCount-1, bX + nbCellDistX);
+        int bYEnd = System.Math.Min(YCount-1, bY + nbCellDistY);
 
 
         for (int y = bYStart; y <= bYEnd;y++)

@@ -101,11 +101,15 @@ public class GridRenderer : MonoBehaviour
                 colors[i].r = 0.4f;
                 if (m != null)
                 {
+                    float dist = (basePos - (m.Position - transform.position)).magnitude;
+                    //dist = Mathf.Max(0.01f, dist);
                     basePos = m.Position - transform.position;
+                    
+                    colors[i].r = dist;
                 }
                 else
                 {
-                    colors[i].r = 0.0f;
+                    colors[i].r = CellSize; 
                 }
 
                 

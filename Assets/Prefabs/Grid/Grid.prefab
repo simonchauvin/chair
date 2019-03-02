@@ -46,13 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3470fb91fa9fcd341b4c3f74caf7c5eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridInitWidth: 40
-  GridInitHeight: 20
+  GridInitWidth: 20
+  GridInitHeight: 10
   CellSize: 0.5
   DebugObject: {fileID: 963414582244997143, guid: 4eca56c7b6b46de47913e8aa9af41f02,
     type: 3}
   ShowDebugSprings: 0
-  ShowDebugObjects: 0
+  ShowDebugObjects: 1
   BaseMass: 1
   BaseElasticity: 3
   BaseSpringMinLength: 0.1
