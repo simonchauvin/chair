@@ -85,6 +85,7 @@ public class Grid : MonoBehaviour
         private bool KillMe = false;
         private Grid G;
         private Transform DebugObject;
+        private float SumFatigue = 0;
 
         public Mass(Grid g)
         {
@@ -99,6 +100,21 @@ public class Grid : MonoBehaviour
         public void AddForce(Vector3 force)
         {
             Forces += force;
+        }
+
+        public void AddFatigue(float fatigue)
+        {
+            SumFatigue += fatigue;
+        }
+
+        public float GetFatigue()
+        {
+            return SumFatigue;
+        }
+
+        public void PreUpdate()
+        {
+            SumFatigue = 0;
         }
 
         public void Update(float deltaTime)
@@ -118,7 +134,7 @@ public class Grid : MonoBehaviour
             PrevForce = Forces;
 
             Position += Forces * deltaTime;
-            Forces = new Vector3();
+            Forces = Vector3.zero;
 
             if (DebugObject)
             {
@@ -167,7 +183,7 @@ public class Grid : MonoBehaviour
         private float Force;
         private float PrevForce;
         private float Fatigue;
-        private float SpeedFatigue = 0.5f;
+        private float SpeedFatigue = 0.1f;
 
         public Spring(Grid g)
         {
@@ -222,6 +238,8 @@ public class Grid : MonoBehaviour
             Vector3 dirNorm = dir / lengthCur;
             A.AddForce(dirNorm * Force);
             B.AddForce(dirNorm *(-Force));
+            A.AddFatigue(Fatigue);
+            B.AddFatigue(Fatigue);
         }
 
         public float distanceToMe(Vector3 v)
@@ -382,6 +400,9 @@ public class Grid : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        foreach(Mass m in Masses)
+            m.PreUpdate();
+
         foreach (Spring s in Springs)
         {
             s.Update();
