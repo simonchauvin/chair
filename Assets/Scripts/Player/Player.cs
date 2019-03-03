@@ -11,11 +11,11 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int maxSimultaneousTouches = 2;
     [SerializeField]
-    private float tapFactor = 2;
+    private float tapFactor = 1.25f;
     [SerializeField]
-    private int baseTearingFactor = 1;
+    private float baseTearingFactor = 1;
     [SerializeField]
-    private int maxTearingFactor = 2;
+    private float maxTearingFactor = 1.5f;
     [SerializeField]
     private float maxTearingDeltaPosition = 40;
     [SerializeField]
