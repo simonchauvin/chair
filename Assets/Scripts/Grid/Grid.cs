@@ -413,7 +413,7 @@ public class Grid : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         foreach(Mass m in Masses)
             m.PreUpdate();
