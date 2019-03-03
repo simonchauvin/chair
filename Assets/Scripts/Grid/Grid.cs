@@ -23,6 +23,7 @@ public class Grid : MonoBehaviour
     public float BaseSpringMaxLength = 1.9f; //Pour une base de 1
     public float BaseBoostSpringForce = 10; //Force qui augmente aux limites du ressort
     public float BaseMaxSpringForce = 10; //Force max du ressort
+    public float TemporalSmooth = 0.1f;
 
     List<Mass> Masses = new List<Mass>();
     List<Spring> Springs = new List<Spring>();
@@ -86,11 +87,13 @@ public class Grid : MonoBehaviour
         private Grid G;
         private Transform DebugObject;
         private float SumFatigue = 0;
+        private float TemporalSmooth = 0.1f;
 
         public Mass(Grid g)
         {
             M = g.BaseMass;
             G = g;
+            TemporalSmooth = g.TemporalSmooth;
         }
         public bool ToBeKilled()
         {
@@ -130,7 +133,7 @@ public class Grid : MonoBehaviour
 
             Forces /= M;
 
-            Forces = Vector3.Lerp(PrevForce,Forces,0.1f);
+            Forces = Vector3.Lerp(PrevForce,Forces,Mathf.Pow(1-TemporalSmooth,Time.deltaTime));
             PrevForce = Forces;
 
             Position += Forces * deltaTime;
@@ -183,8 +186,9 @@ public class Grid : MonoBehaviour
         private float Force;
         private float PrevForce;
         private float Fatigue;
-        private float SpeedFatigueUp = 0.3f;
-        private float SpeedFatigueDown = 0.1f;
+        private float SpeedFatigueUp = 0.1f;
+        private float SpeedFatigueDown = 0.05f;
+        private float Adaptivity = 0;
 
         public Spring(Grid g)
         {
@@ -209,6 +213,9 @@ public class Grid : MonoBehaviour
             //On applique les forces aux masses
             Vector3 dir = B.Position - A.Position;
             float lengthCur = dir.magnitude;
+            //On adapte la length
+            //SetLength(Mathf.Lerp(Length, lengthCur, Adaptivity));
+
             Force = (lengthCur - Length) * K;
 
             //On booste la force quand on se rapproche des points limites
@@ -224,17 +231,17 @@ public class Grid : MonoBehaviour
                 Force = G.BaseMaxSpringForce;
 
 
-            if(Mathf.Abs(Force - PrevForce)*Time.deltaTime < 0.2f)
+            if(Mathf.Abs(Force - PrevForce) < 0.2f)
             {
-                float boosFatigue = SpeedFatigueDown;
+                float boostFatigue = SpeedFatigueDown;
                 if ((Force - PrevForce) > 0)
-                    boosFatigue = SpeedFatigueUp;
-                Fatigue += ((Force - PrevForce) / (Time.deltaTime*100)) * boosFatigue;
+                    boostFatigue = SpeedFatigueUp;
+                Fatigue +=  (Force - PrevForce) * boostFatigue;
             }
             PrevForce = Force;
 
             //Kill
-            if (lengthCur > MaxLength || Fatigue > 1)
+            if ( Fatigue > 1)
                 Detach();
 
                     
@@ -402,7 +409,7 @@ public class Grid : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         foreach(Mass m in Masses)
             m.PreUpdate();
