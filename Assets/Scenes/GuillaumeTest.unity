@@ -574,5 +574,10 @@ PrefabInstance:
       propertyPath: skinResolution
       value: 0.02
       objectReference: {fileID: 0}
+    - target: {fileID: 7074677907028291713, guid: 0ce12b20c0164ef4796987d867adebef,
+        type: 3}
+      propertyPath: width
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ce12b20c0164ef4796987d867adebef, type: 3}

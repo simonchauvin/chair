@@ -59,7 +59,7 @@ MonoBehaviour:
   BaseSpringMaxLength: 1.5
   BaseBoostSpringForce: 20
   BaseMaxSpringForce: 7
-  TemporalSmooth: 0.5
+  TemporalSmooth: 0.9
   SpeedFatigueUp: 0.6
   SpeedFatigueDown: 0.35
 --- !u!114 &2312317651145633806
