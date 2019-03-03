@@ -76,6 +76,7 @@ Shader "test/MyShader"
 					{
 						// sample the texture
 						fixed4 col =  (1 - i.color.r) * _Color;
+						col += fixed4(0, i.color.b, 0,0) / 2;
 						fixed4 colCrack = tex2D(_MainTex, i.uv);
 						//col = fixed4(1, 1, 1, 1);
 						col.a = 1;
