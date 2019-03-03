@@ -153,7 +153,7 @@ Shader "test/MyShader"
 						//Normale
 						float3 normal = i.normal*-1;
 						normal += _BumpSkin * skinNormals;
-						normal += _BumpCracks * cracksNormals;
+						normal += _BumpCracks * cracksNormals * crack;
 						normal = normalize(normal);
 
 						//Lights
