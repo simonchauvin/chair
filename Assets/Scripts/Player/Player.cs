@@ -213,6 +213,8 @@ public class Player : MonoBehaviour
                 foreach (Grid.Spring s in springsToKill)
                 {
                     s.Detach();
+
+                    SoundController.Instance.PlayRipSound();
                 }
                 break;
             }

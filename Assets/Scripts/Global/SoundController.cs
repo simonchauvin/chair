@@ -4,6 +4,19 @@ using UnityEngine;
 
 public class SoundController : MonoBehaviour
 {
+    private static SoundController _instance;
+    public static SoundController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<SoundController>();
+            }
+            return _instance;
+        }
+    }
+
     private AudioSource audioEffectsSource;
 
 
@@ -16,5 +29,10 @@ public class SoundController : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void PlayRipSound()
+    {
+        audioEffectsSource.Play();
     }
 }
