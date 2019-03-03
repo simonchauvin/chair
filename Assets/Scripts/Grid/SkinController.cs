@@ -8,9 +8,8 @@ public class SkinController : MonoBehaviour
     private Grid dermisLayerPrefab;
     [SerializeField]
     private int dermisCount;
-    [SerializeField]
-    [Range(0f, 1f)]
-    private float skinResolution;
+    [SerializeField][Range(0, 100)]
+    private int width;
     [SerializeField]
     private float lifeExpectancy = 600;
 
@@ -21,10 +20,10 @@ public class SkinController : MonoBehaviour
     private int skinHeight;
 
 
-    public void Init(Vector2 resolution, ScreenOrientation screenOrientation)
+    public void Init(float screenRatio)
     {
-        skinWidth = Mathf.CeilToInt(resolution.x * skinResolution) + 2;
-        skinHeight = Mathf.CeilToInt(resolution.y * skinResolution) + 2;
+        skinWidth = width + 2;
+        skinHeight = Mathf.CeilToInt(screenRatio * width) + 2;
         
         dermisLayers = new Grid[dermisCount];
         for (int i = 0; i < dermisCount; i++)
