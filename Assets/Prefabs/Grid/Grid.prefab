@@ -53,10 +53,10 @@ MonoBehaviour:
     type: 3}
   ShowDebugSprings: 0
   ShowDebugObjects: 0
-  BaseMass: 2
+  BaseMass: 3
   BaseElasticity: 2
-  BaseSpringMinLength: 0.3
-  BaseSpringMaxLength: 1.7
+  BaseSpringMinLength: 0.4
+  BaseSpringMaxLength: 1.5
   BaseBoostSpringForce: 10
   BaseMaxSpringForce: 7
 --- !u!114 &2312317651145633806

@@ -89,7 +89,7 @@ Shader "test/MyShader"
 						lightDir = float3(-1, 0, -0.2);
 						ndotl += dot(i.normal, normalize(lightDir));
 						float4 crack = pow(i.color.b,1.5) * saturate(1 - (colCrack*pow(smoothstep(0, 1, colCrack.g),15) ));
-						return saturate((col * max(0.0, ndotl + pow(ndotl,10))) - crack);
+						return saturate((col * max(0.0, 0.5+ndotl + pow(ndotl,10))) - crack);
 						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
 				}
 				ENDCG

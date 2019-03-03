@@ -21,10 +21,10 @@ public class SkinController : MonoBehaviour
     private int skinHeight;
 
 
-    public void Init(Resolution resolution, ScreenOrientation screenOrientation)
+    public void Init(Vector2 resolution, ScreenOrientation screenOrientation)
     {
-        skinWidth = Mathf.CeilToInt(resolution.height * skinResolution) + 2;
-        skinHeight = Mathf.CeilToInt(resolution.width * skinResolution) + 2;
+        skinWidth = Mathf.CeilToInt(resolution.x * skinResolution) + 2;
+        skinHeight = Mathf.CeilToInt(resolution.y * skinResolution) + 2;
         
         dermisLayers = new Grid[dermisCount];
         for (int i = 0; i < dermisCount; i++)
