@@ -5,14 +5,31 @@ Shader "test/MyShader"
 {
 	Properties
 	{
-			_MainTex("Texture", 2D) = "white" {}
-			_Smooth("Smooth mat", Range(0.0, 1.0)) = 0.5
-			_Color("Color base", Color) = (1,0.2,0.3,1)
+			_MainTex("Cracks", 2D) = "black" {}
+			_CracksVisibility("Cracks impact", Range(0.0, 1.0)) = 0.5
+				_CracksTiling("Cracks tiling", Range(0.0, 1.0)) = 0.5
+			_CracksNormals("Cracks Normals", 2D) = "black" {}
+			_BumpCracks("Cracks Normals Impact", Range(0.0, 1.0)) = 0.5
+			_SkinNormals("Skin Normals", 2D) = "black" {}
+			_BumpSkin("Skin Normals Impact", Range(0.0, 1.0)) = 0.5
+	    _Color("Color base", Color) = (1,0.2,0.3,1)
+				_Glossiness("Glossiness", Range(0.0, 1.0)) = 0.5
+				_Specular("Specular", Range(0.0, 1.0)) = 0.5
+			_ColorFatigue("Color fatigue", Color) = (0,0.2,1,1)
+			_FatigueColImpact("Fatigue color impact", Range(0.0, 1.0)) = 0.5
+				
+			
 	}
 		SubShader
 	{
-			Tags { "RenderType" = "Opaque" }
-			LOD 100
+			/*Tags { "RenderType" = "Opaque" }
+			LOD 100*/
+
+				Tags {"Queue" = "Transparent" "RenderType" = "Transparent" }
+				LOD 100
+
+				ZWrite Off
+				Blend SrcAlpha OneMinusSrcAlpha
 
 			Pass
 			{
@@ -41,9 +58,19 @@ Shader "test/MyShader"
 					};
 
 					sampler2D _MainTex;
+					sampler2D _CracksNormals;
+					sampler2D _SkinNormals;
 					float4 _MainTex_ST;
 					float _Smooth;
+					float _FatigueColImpact;
 					float4 _Color;
+					float4 _ColorFatigue;
+					float _BumpCracks;
+					float _BumpSkin;
+					float _Glossiness;
+					float _Specular;
+					float _CracksVisibility;
+					float _CracksTiling;
 
 					v2f vert(appdata v)
 					{
@@ -67,31 +94,69 @@ Shader "test/MyShader"
 									test.vertex = input[i].vertex;
 									test.uv = input[i].uv;
 									test.color = input[i].color;
-									//if(test.color.r > 2.f)
-										OutputStream.Append(test);
+									OutputStream.Append(test);
 							}		
 					}
 
 					fixed4 frag(v2f i) : SV_Target
 					{
-						// sample the texture
-						fixed4 colCrack = tex2D(_MainTex, i.uv);
+						//Params recu dans la couleur
+					  float distance = saturate(i.color.r);
+						float fatigue = saturate(i.color.b);
 
-						fixed4 col =  (1 - i.color.r) * _Color;
-						col += fixed4(0, i.color.b, 0,0) / 2;
-						col += fixed4(i.color.r/2, 0, 0, 0) / 2;
+						//Base color
+						fixed4 col = _Color;
+
+						//Ajout de fatigue 
+						col = saturate(lerp	(col,_ColorFatigue, fatigue * _FatigueColImpact));
+
+						//Assombrissement sur la distance
+						float impactDistance = pow(distance, 3);
+						//col = saturate((1 - impactDistance) * col);
+						float alpha = (1 - impactDistance);
+
+						//Normals
+						fixed4 cracksNormals = tex2D(_CracksNormals, i.uv);
+						fixed4 skinNormals = tex2D(_SkinNormals, i.uv);
+
+						//Cracks
+						fixed4 colCrack = tex2D(_MainTex, i.uv*10* _CracksTiling);
+						float4 crack = pow(fatigue, 1.5) * saturate(1 - (colCrack*pow(smoothstep(0, 1, colCrack.g), 15))) * _CracksVisibility * 10;
+								
+						//Normale
+						float3 normal = i.normal*-1;
+						normal += _BumpSkin * skinNormals;
+						normal += _BumpCracks * cracksNormals;
+						normal = normalize(normal);
+
+						//Lights
+						float3 lightDir1 = normalize(float3(1, 1, 0.2));
+						float3 lightDir2 = normalize(float3(-1, 0, 0.2));
+						float3 dirView = normalize(float3(0, 0, 1));
+
+						//Diffuse
+						float ndotl = max(0,dot(normal, lightDir1));
+						ndotl += max(0, dot(normal, lightDir2));
+
+						//Base light
+						float base = 0.5;
+
+						//Specular
+						float3 halfVec = normalize(dirView + lightDir1);
+						float spec1 = max(0, dot(normal, halfVec));
+						halfVec = normalize(dirView + lightDir2);
+						float spec2 = max(0, dot(normal, halfVec));
+						float spec = max(spec1, spec2);
+						float4 specColor = float4(1, 1, 1, 0);
+						spec = pow(spec, 100 * _Glossiness)*5*_Specular  ;
+
+						col = base * col + ndotl * col + specColor * spec;
+
+						alpha -= crack;
+
+						return fixed4(col.rgb, alpha);
 						
-						//col = fixed4(1, 1, 1, 1);
-						col.a = 1;
-
-						float3 lightDir = float3(1, 1, -0.2);
-						
-						float ndotl = dot(i.normal, normalize(lightDir));
-
-						lightDir = float3(-1, 0, -0.2);
-						ndotl += dot(i.normal, normalize(lightDir));
-						float4 crack = pow(i.color.b,1.5) * saturate(1 - (colCrack*pow(smoothstep(0, 1, colCrack.g),15) ));
-						return saturate((col * max(0.0, 0.5+ndotl + pow(ndotl,10))) - crack);
+						//return saturate((col * max(0.0, 0.5+ndotl + pow(ndotl,10))) - crack);
 						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
 				}
 				ENDCG
