@@ -77,6 +77,7 @@ Shader "test/MyShader"
 						// sample the texture
 						fixed4 col =  (1 - i.color.r) * _Color;
 						col += fixed4(0, i.color.b, 0,0) / 2;
+						col += fixed4(i.color.r/2, 0, 0, 0) / 2;
 						fixed4 colCrack = tex2D(_MainTex, i.uv);
 						//col = fixed4(1, 1, 1, 1);
 						col.a = 1;
@@ -87,8 +88,8 @@ Shader "test/MyShader"
 
 						lightDir = float3(-1, 0, -0.2);
 						ndotl += dot(i.normal, normalize(lightDir));
-						float4 crack = i.color.b * saturate(1 - (colCrack*smoothstep(0, 1, colCrack.r)*smoothstep(0, 1, colCrack.r) * 2));
-						return saturate((col * max(0.0, ndotl)) - crack);
+						float4 crack = pow(i.color.b,1.5) * saturate(1 - (colCrack*pow(smoothstep(0, 1, colCrack.g),15) ));
+						return saturate((col * max(0.0, ndotl + pow(ndotl,10))) - crack);
 						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
 				}
 				ENDCG
