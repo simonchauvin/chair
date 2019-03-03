@@ -31,10 +31,10 @@ public class Player : MonoBehaviour
     private Vector3 lastClickPosition;
     private Vector3 clickDeltaPosition;
     private Vector2[] lastTouchesPosition;
-    private Vector2[] touchesDeltaPosition;
+    private Vector3[] touchesDeltaPosition;
     private float lastDistanceBetweenFingers;
-    private Vector2 fingersVector;
-    private float startingFingersDistance;
+    private Vector3 fingersVector;
+    private float minFingersDistance;
     private float fingersDistance;
 
 
@@ -46,9 +46,9 @@ public class Player : MonoBehaviour
         lastTouchCount = 0;
         clickDeltaPosition = Vector3.zero;
         lastTouchesPosition = new Vector2[maxSimultaneousTouches];
-        touchesDeltaPosition = new Vector2[maxSimultaneousTouches];
+        touchesDeltaPosition = new Vector3[maxSimultaneousTouches];
         fingersVector = Vector3.zero;
-        startingFingersDistance = 0;
+        minFingersDistance = 0;
         fingersDistance = 0;
     }
 
@@ -68,7 +68,7 @@ public class Player : MonoBehaviour
 
             if (Input.GetButtonDown("Fire3"))
             {
-                CutSkin(worldPos);
+                RipSkin(worldPos, touchRadius);
             }
 #elif UNITY_STANDALONE
             ProcessTearingBehaviour(GetWorldPosition(Input.mousePosition));
@@ -96,24 +96,23 @@ public class Player : MonoBehaviour
 
             if (Input.touchCount > 1)
             {
-                fingersVector = touches[0].position - touches[1].position;
+                fingersVector = GetWorldPosition(touches[0].position) - GetWorldPosition(touches[1].position);
                 fingersDistance = fingersVector.magnitude;
 
                 if (Input.touchCount != lastTouchCount)
                 {
-                    startingFingersDistance = fingersVector.magnitude;
+                    minFingersDistance = fingersDistance;
+                    lastDistanceBetweenFingers = fingersDistance;
+                }
+
+                if (fingersDistance < minFingersDistance)
+                {
+                    minFingersDistance = fingersDistance;
                 }
 
                 if (Mathf.Abs(lastDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
                 {
-                    Vector3 center = touches[1].position + fingersVector.normalized * (fingersDistance * 0.5f);
-                    TouchSkin(center,
-                        (touches[0].position - touches[1].position).normalized,
-                        Mathf.Clamp(fingersDistance / startingFingersDistance, baseRippingFactor, maxRippingFactor));
-
-                    TouchSkin(center,
-                        (touches[1].position - touches[0].position).normalized,
-                        Mathf.Clamp(fingersDistance / startingFingersDistance, baseRippingFactor, maxRippingFactor));
+                    RipSkin(GetWorldPosition(touches[1].position) + fingersVector.normalized * (fingersDistance * 0.5f), touchRadius * 0.5f);
                 }
                 lastDistanceBetweenFingers = fingersDistance;
             }
@@ -189,12 +188,12 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void CutSkin(Vector3 worldPosition)
+    private void RipSkin(Vector3 worldPosition, float radius)
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
             List<Grid.Spring> springsToKill = new List<Grid.Spring>();
-            dermisLayers[j].GetSpringsCloseTo(springsToKill, worldPosition, touchRadius);
+            dermisLayers[j].GetSpringsCloseTo(springsToKill, worldPosition, radius);
             if (springsToKill.Count > 0)
             {
                 foreach (Grid.Spring s in springsToKill)
