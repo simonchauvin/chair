@@ -96,7 +96,7 @@ public class GridRenderer : MonoBehaviour
                 basePos.z = vertices[i].z;
 
                 //Recup le plus proche
-                Grid.Mass m = G.GetClosestMassTo( basePos, CellSize);
+                Grid.Mass m = G.GetClosestMassTo( basePos, CellSize*1.1f);
 
                 colors[i].r = 1.0f;
                 if (m != null)
@@ -105,11 +105,11 @@ public class GridRenderer : MonoBehaviour
                     //dist = Mathf.Max(0.01f, dist);
                     basePos = m.Position - transform.position;
                     colors[i].b = m.GetFatigue()/10;
-                    colors[i].r = dist;
+                    colors[i].r = (dist/ CellSize)*1.5f;
                 }
                 else
                 {
-                    colors[i].r = CellSize;
+                    colors[i].r = 1;
                     colors[i].b = 0;
                 }
 
