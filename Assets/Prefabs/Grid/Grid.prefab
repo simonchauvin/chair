@@ -60,6 +60,8 @@ MonoBehaviour:
   BaseBoostSpringForce: 20
   BaseMaxSpringForce: 7
   TemporalSmooth: 0.5
+  SpeedFatigueUp: 0.6
+  SpeedFatigueDown: 0.35
 --- !u!114 &2312317651145633806
 MonoBehaviour:
   m_ObjectHideFlags: 0

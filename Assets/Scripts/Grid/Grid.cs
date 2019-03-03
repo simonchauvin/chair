@@ -17,13 +17,15 @@ public class Grid : MonoBehaviour
     public bool ShowDebugSprings = true;
     public bool ShowDebugObjects = true;
 
-    public float BaseMass = 1;
-    public float BaseElasticity = 1;
-    public float BaseSpringMinLength = 0.1f; //Pour une base de 1
-    public float BaseSpringMaxLength = 1.9f; //Pour une base de 1
-    public float BaseBoostSpringForce = 10; //Force qui augmente aux limites du ressort
-    public float BaseMaxSpringForce = 10; //Force max du ressort
-    public float TemporalSmooth = 0.1f;
+    public float BaseMass = 2;
+    public float BaseElasticity = 3;
+    public float BaseSpringMinLength = 0.4f; //Pour une base de 1
+    public float BaseSpringMaxLength = 1.5f; //Pour une base de 1
+    public float BaseBoostSpringForce = 20; //Force qui augmente aux limites du ressort
+    public float BaseMaxSpringForce = 7; //Force max du ressort
+    public float TemporalSmooth = 0.6f;
+    public float SpeedFatigueUp = 0.6f;
+    public float SpeedFatigueDown = 0.3f;
 
     List<Mass> Masses = new List<Mass>();
     List<Spring> Springs = new List<Spring>();
@@ -194,6 +196,8 @@ public class Grid : MonoBehaviour
         {
             G = g;
             K = g.BaseElasticity;
+            SpeedFatigueUp = 0.3f * g.SpeedFatigueUp;
+            SpeedFatigueDown = 0.3f * g.SpeedFatigueDown;
         }
 
         public bool ToBeKilled()
