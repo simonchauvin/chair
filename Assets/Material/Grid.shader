@@ -19,7 +19,7 @@ Shader "test/MyShader"
 					CGPROGRAM
 					#pragma vertex vert
 					#pragma fragment frag
-					#pragma geometry geom
+					//#pragma geometry geom
 
 					#include "UnityCG.cginc"
 
@@ -75,10 +75,12 @@ Shader "test/MyShader"
 					fixed4 frag(v2f i) : SV_Target
 					{
 						// sample the texture
+						fixed4 colCrack = tex2D(_MainTex, i.uv);
+
 						fixed4 col =  (1 - i.color.r) * _Color;
 						col += fixed4(0, i.color.b, 0,0) / 2;
 						col += fixed4(i.color.r/2, 0, 0, 0) / 2;
-						fixed4 colCrack = tex2D(_MainTex, i.uv);
+						
 						//col = fixed4(1, 1, 1, 1);
 						col.a = 1;
 
