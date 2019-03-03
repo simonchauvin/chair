@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GuillaumeTest.unity
+    path: Assets/Scenes/Main.unity
     guid: 2202d7b1b2d46844f931d832e4fb632a
   m_configObjects: {}
