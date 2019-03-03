@@ -38,10 +38,11 @@ public class GameManager : MonoBehaviour
         skinController = FindObjectOfType<SkinController>();
 
         soundController.Init();
-        skinController.Init(Screen.currentResolution);
+        skinController.Init(Screen.currentResolution, Screen.orientation);
         player.Init(skinController.GetDermisLayers());
 
-        mainCam.transform.position += skinController.GetSize() * 0.5f;
+        mainCam.transform.position += skinController.GetSize() * 0.5f - new Vector3(0.5f, 0.5f);
+        mainCam.orthographicSize = mainCam.transform.position.y;
 
         ready = true;
     }
