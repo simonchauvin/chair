@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int maxSimultaneousTouches = 2;
     [SerializeField]
-    private float minDistanceBeforeRipping = 0.5f;
+    private float tapFactor = 2;
     [SerializeField]
     private int baseTearingFactor = 1;
     [SerializeField]
@@ -19,9 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float maxTearingDeltaPosition = 40;
     [SerializeField]
-    private int baseRippingFactor = 1;
-    [SerializeField]
-    private int maxRippingFactor = 10;
+    private float minDistanceBeforeRipping = 0.5f;
 
     private Grid[] dermisLayers;
     private Touch[] touches;
@@ -34,6 +32,7 @@ public class Player : MonoBehaviour
     private Vector3[] touchesDeltaPosition;
     private float lastDistanceBetweenFingers;
     private Vector3 fingersVector;
+    private Vector3 rippingCenter;
     private float minFingersDistance;
     private float fingersDistance;
 
@@ -48,6 +47,7 @@ public class Player : MonoBehaviour
         lastTouchesPosition = new Vector2[maxSimultaneousTouches];
         touchesDeltaPosition = new Vector3[maxSimultaneousTouches];
         fingersVector = Vector3.zero;
+        rippingCenter = Vector3.zero;
         minFingersDistance = 0;
         fingersDistance = 0;
     }
@@ -83,6 +83,8 @@ public class Player : MonoBehaviour
                 if (touches[fingerId].phase == TouchPhase.Began)
                 {
                     lastTouchesPosition[fingerId] = touches[fingerId].position;
+
+                    TapSkin(GetWorldPosition(touches[fingerId].position), tapFactor);
                 }
                 else if (touches[fingerId].phase == TouchPhase.Moved)
                 {
@@ -94,7 +96,7 @@ public class Player : MonoBehaviour
                 TouchSkin(GetWorldPosition(touches[fingerId].position), touchesDeltaPosition[fingerId].normalized, Mathf.Lerp(baseTearingFactor, maxTearingFactor, maxTearingDeltaPosition - touches[fingerId].deltaPosition.magnitude));
             }
 
-            if (Input.touchCount > 1)
+            if (Input.touchCount > 1) // Ripping
             {
                 fingersVector = GetWorldPosition(touches[0].position) - GetWorldPosition(touches[1].position);
                 fingersDistance = fingersVector.magnitude;
@@ -103,6 +105,7 @@ public class Player : MonoBehaviour
                 {
                     minFingersDistance = fingersDistance;
                     lastDistanceBetweenFingers = fingersDistance;
+                    rippingCenter = GetWorldPosition(touches[1].position) + fingersVector.normalized * (fingersDistance * 0.5f);
                 }
 
                 if (fingersDistance < minFingersDistance)
@@ -112,7 +115,7 @@ public class Player : MonoBehaviour
 
                 if (Mathf.Abs(lastDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
                 {
-                    RipSkin(GetWorldPosition(touches[1].position) + fingersVector.normalized * (fingersDistance * 0.5f), touchRadius * 0.5f);
+                    RipSkin(rippingCenter, touchRadius * 0.5f);
                 }
                 lastDistanceBetweenFingers = fingersDistance;
             }
@@ -162,7 +165,7 @@ public class Player : MonoBehaviour
         return clickPos;
     }
 
-    private void TouchSkin(Vector3 worldPosition, Vector3 direction, float rippingFactor)
+    private void TouchSkin(Vector3 worldPosition, Vector3 direction, float factor)
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
@@ -172,7 +175,24 @@ public class Player : MonoBehaviour
             {
                 foreach (Grid.Mass m in massesToLink)
                 {
-                    m.AddForce(direction * rippingFactor + new Vector3(0, 0, touchDepth));
+                    m.AddForce(direction * factor + new Vector3(0, 0, touchDepth));
+                }
+                break;
+            }
+        }
+    }
+
+    private void TapSkin(Vector3 worldPosition, float factor)
+    {
+        for (int j = 0; j < dermisLayers.Length; j++)
+        {
+            List<Grid.Mass> massesToLink = new List<Grid.Mass>();
+            dermisLayers[j].GetMassesCloseTo(massesToLink, worldPosition, touchRadius);
+            if (massesToLink.Count > 0)
+            {
+                foreach (Grid.Mass m in massesToLink)
+                {
+                    m.AddForce((m.Position - worldPosition).normalized * factor + new Vector3(0, 0, touchDepth));
                 }
                 break;
             }
