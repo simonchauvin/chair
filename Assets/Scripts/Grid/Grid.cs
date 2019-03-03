@@ -235,7 +235,7 @@ public class Grid : MonoBehaviour
                 Force = G.BaseMaxSpringForce;
 
 
-            if(Mathf.Abs(Force - PrevForce) < 0.2f)
+            if(Mathf.Abs(Force - PrevForce) < 0.9f)
             {
                 float boostFatigue = SpeedFatigueDown;
                 if ((Force - PrevForce) > 0)
