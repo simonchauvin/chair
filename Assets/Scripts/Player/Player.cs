@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float maxTearingDeltaPosition = 40;
     [SerializeField]
-    private float minDistanceBeforeRipping = 0.5f;
+    private float minDistanceBeforeRipping = 10f;
 
     private Grid[] dermisLayers;
     private Touch[] touches;
@@ -30,10 +30,9 @@ public class Player : MonoBehaviour
     private Vector3 clickDeltaPosition;
     private Vector2[] lastTouchesPosition;
     private Vector3[] touchesDeltaPosition;
-    private float lastDistanceBetweenFingers;
+    private float startingDistanceBetweenFingers;
     private Vector3 fingersVector;
     private Vector3 rippingCenter;
-    private float minFingersDistance;
     private float fingersDistance;
 
 
@@ -46,9 +45,9 @@ public class Player : MonoBehaviour
         clickDeltaPosition = Vector3.zero;
         lastTouchesPosition = new Vector2[maxSimultaneousTouches];
         touchesDeltaPosition = new Vector3[maxSimultaneousTouches];
+        startingDistanceBetweenFingers = 0;
         fingersVector = Vector3.zero;
         rippingCenter = Vector3.zero;
-        minFingersDistance = 0;
         fingersDistance = 0;
     }
 
@@ -103,21 +102,14 @@ public class Player : MonoBehaviour
 
                 if (Input.touchCount != lastTouchCount)
                 {
-                    minFingersDistance = fingersDistance;
-                    lastDistanceBetweenFingers = fingersDistance;
+                    startingDistanceBetweenFingers = fingersDistance;
                     rippingCenter = GetWorldPosition(touches[1].position) + fingersVector.normalized * (fingersDistance * 0.5f);
                 }
 
-                if (fingersDistance < minFingersDistance)
-                {
-                    minFingersDistance = fingersDistance;
-                }
-
-                if (Mathf.Abs(lastDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
+                if (Mathf.Abs(startingDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
                 {
                     RipSkin(rippingCenter, touchRadius * 0.5f);
                 }
-                lastDistanceBetweenFingers = fingersDistance;
             }
 
             lastTouchCount = Input.touchCount;
