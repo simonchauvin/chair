@@ -72,6 +72,33 @@ Shader "test/MyShader"
 					float _CracksVisibility;
 					float _CracksTiling;
 
+					//float rand(float n) { return frac(sin(n) * 43758.5453123); }
+					float rand(float2 n) {
+						return frac(sin(dot(n, float2(12.9898, 4.1414))) * 43758.5453);
+					}
+
+					/*float noise(float2 n) {
+						const float2 d = float2(0.0, 1.0);
+						float2 b = floor(n), f = smoothstep(float2(0.0,0.0), float2(1.0,1.0), frac(n));
+						return lerp(lerp(rand(b), rand(b + d.yx), f.x), lerp(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+					}*/
+
+					float noiseMe(float2 p) {
+						float2 ip = floor(p);
+						float2 u = frac(p);
+						u = u * u*(3.0 - 2.0*u);
+
+						float res = lerp(
+							lerp(rand(ip), rand(ip + float2(1.0, 0.0)), u.x),
+							lerp(rand(ip + float2(0.0, 1.0)), rand(ip + float2(1.0, 1.0)), u.x), u.y);
+						return res;
+					}
+
+					float noise2(float2 co)
+					{
+						return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
+					}
+
 					v2f vert(appdata v)
 					{
 							v2f o;
@@ -139,7 +166,7 @@ Shader "test/MyShader"
 						ndotl += max(0, dot(normal, lightDir2));
 
 						//Base light
-						float base = 0.5;
+						float base = 0.5 + noiseMe(i.uv * 3)/10 + noiseMe(i.uv * 10)/20;
 
 						//Specular
 						float3 halfVec = normalize(dirView + lightDir1);
@@ -154,7 +181,11 @@ Shader "test/MyShader"
 
 						alpha -= crack;
 
-						return fixed4(col.rgb, alpha);
+						//return float4(i.uv*20, 0, 1);
+
+						//return float4(noiseMe(i.uv*5), 0, 0, 1);
+
+						return fixed4(col.rgb , alpha);
 						
 						//return saturate((col * max(0.0, 0.5+ndotl + pow(ndotl,10))) - crack);
 						//return 1-(i.color.r* fixed4(1, 1, 1, 1));
