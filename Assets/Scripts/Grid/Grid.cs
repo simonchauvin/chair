@@ -183,7 +183,8 @@ public class Grid : MonoBehaviour
         private float Force;
         private float PrevForce;
         private float Fatigue;
-        private float SpeedFatigue = 0.1f;
+        private float SpeedFatigueUp = 0.3f;
+        private float SpeedFatigueDown = 0.1f;
 
         public Spring(Grid g)
         {
@@ -225,7 +226,10 @@ public class Grid : MonoBehaviour
 
             if(Mathf.Abs(Force - PrevForce)*Time.deltaTime < 0.2f)
             {
-                Fatigue += ((Force - PrevForce) / (Time.deltaTime*100)) * SpeedFatigue;
+                float boosFatigue = SpeedFatigueDown;
+                if ((Force - PrevForce) > 0)
+                    boosFatigue = SpeedFatigueUp;
+                Fatigue += ((Force - PrevForce) / (Time.deltaTime*100)) * boosFatigue;
             }
             PrevForce = Force;
 
