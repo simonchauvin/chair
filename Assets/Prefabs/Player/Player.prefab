@@ -50,4 +50,5 @@ MonoBehaviour:
   baseTearingFactor: 1
   maxTearingFactor: 1.5
   maxTearingDeltaPosition: 40
+  ripRadius: 0.75
   minDistanceBeforeRipping: 10

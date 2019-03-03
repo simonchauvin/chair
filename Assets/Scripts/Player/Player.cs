@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float maxTearingDeltaPosition = 40;
     [SerializeField]
+    private float ripRadius = 1f;
+    [SerializeField]
     private float minDistanceBeforeRipping = 10f;
 
     private Grid[] dermisLayers;
@@ -67,7 +69,7 @@ public class Player : MonoBehaviour
 
             if (Input.GetButtonDown("Fire3"))
             {
-                RipSkin(worldPos, touchRadius);
+                RipSkin(worldPos, ripRadius);
             }
 #elif UNITY_STANDALONE
             ProcessTearingBehaviour(GetWorldPosition(Input.mousePosition));
@@ -108,7 +110,7 @@ public class Player : MonoBehaviour
 
                 if (Mathf.Abs(startingDistanceBetweenFingers - fingersDistance) >= minDistanceBeforeRipping) // Ripping
                 {
-                    RipSkin(rippingCenter, touchRadius * 0.5f);
+                    RipSkin(rippingCenter, ripRadius);
                 }
             }
 
