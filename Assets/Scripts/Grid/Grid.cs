@@ -27,6 +27,8 @@ public class Grid : MonoBehaviour
     public float SpeedFatigueUp = 0.6f;
     public float SpeedFatigueDown = 0.3f;
 
+    private Transform thisTransform;
+
     List<Mass> Masses = new List<Mass>();
     List<Spring> Springs = new List<Spring>();
 
@@ -34,6 +36,8 @@ public class Grid : MonoBehaviour
 
     public void Init()
     {
+        thisTransform = transform;
+
         Masses.Clear();
         Springs.Clear();
 
@@ -42,7 +46,7 @@ public class Grid : MonoBehaviour
             for (int y = 0; y < GridInitHeight; y++)
             {
                 Mass m = new Mass(this);
-                m.Position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
+                m.Position = thisTransform.position + new Vector3(CellSize * x, CellSize * y, 0);
 
                 if (x == 0 || y == 0 || x == GridInitWidth - 1 || y == GridInitHeight - 1)
                     m.Fixed = true; 
@@ -60,7 +64,7 @@ public class Grid : MonoBehaviour
         {
             for (int y = 0; y < GridInitHeight; y++)
             {
-                Vector3 position = transform.position + new Vector3(CellSize * x, CellSize * y, 0);
+                Vector3 position = thisTransform.position + new Vector3(CellSize * x, CellSize * y, 0);
 
                 List<Mass> massesToLink = new List<Mass>();
                 GetMassesCloseTo(massesToLink, position, 0.01f);
@@ -299,10 +303,9 @@ public class Grid : MonoBehaviour
     private void PutMassesInBuckets()
     {
         Buckets.Clear();
-        foreach(Mass m in Masses)
+        foreach (Mass m in Masses)
         {
-            Vector3 position = m.Position - transform.position;
-            Buckets.AddToBucket(position.x, position.y, m);
+            Buckets.AddToBucket(m.Position - thisTransform.position, m);
         }
     }
 
@@ -311,7 +314,7 @@ public class Grid : MonoBehaviour
     {
         if (reset)
             found.Clear();
-        Vector3 posLocale = point - transform.position;
+        Vector3 posLocale = point - thisTransform.position;
         Buckets.GetNeighbours(tempNeighbours,posLocale.x, posLocale.y, distance);
         for (int i=0;i< tempNeighbours.Count;i++)
         {
@@ -324,14 +327,14 @@ public class Grid : MonoBehaviour
 
     public Mass GetClosestMassTo(Vector3 point, float distance, bool reset = true)
     {
-        Vector3 posLocale = point - transform.position;
+        Vector3 posLocale = point - thisTransform.position;
         Buckets.GetNeighbours(tempNeighbours, posLocale.x, posLocale.y, distance);
-        float distanceMin = distance * distance;
-        Mass bestM = null;
+        float distanceMin = distance * distance, distSq;
+        Mass bestM = null, m;
         for (int i = 0; i < tempNeighbours.Count; i++)
         {
-            Mass m = tempNeighbours.Trucs[i];
-            float distSq = (m.Position - point).sqrMagnitude;
+            m = tempNeighbours.Trucs[i];
+            distSq = (m.Position - point).sqrMagnitude;
             if (distSq < distanceMin)
             {
                 distanceMin = distSq;

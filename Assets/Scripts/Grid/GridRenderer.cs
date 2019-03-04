@@ -5,10 +5,16 @@ using UnityEngine;
 public class GridRenderer : MonoBehaviour
 {
     public Grid G;
-    
+
+    private MeshFilter thisMeshFilter;
+    private Transform thisTransform;
+
     // Start is called before the first frame update
     void Start()
     {
+        thisMeshFilter = GetComponent<MeshFilter>();
+        thisTransform = transform;
+
         CreateGrid(G.GridInitWidth-1, G.GridInitHeight-1, G.CellSize);
     }
 
@@ -26,12 +32,13 @@ public class GridRenderer : MonoBehaviour
     int Width;
     int Height;
     float CellSize;
+    float CellSizeSqr;
 
     public Mesh CreateGrid(int xCount, int yCount, float size)
     {
         Mesh mesh = new Mesh();
 
-        GetComponent<MeshFilter>().mesh = mesh;
+        thisMeshFilter.mesh = mesh;
 
         mesh.MarkDynamic();
 
@@ -40,6 +47,7 @@ public class GridRenderer : MonoBehaviour
         Width = xCount + 1;
         Height = yCount + 1;
         CellSize = size;
+        CellSizeSqr = CellSize * CellSize;
 
 
         Vector2[] uv = new Vector2[vertices.Length];
@@ -82,10 +90,12 @@ public class GridRenderer : MonoBehaviour
     List<Grid.Mass> masses = new List<Grid.Mass>();
     public void UpdateMesh()
     {
-        Mesh mesh = GetComponent<MeshFilter>().mesh;
+        Mesh mesh = thisMeshFilter.mesh;
 
         int i = 0;
-        Vector3 basePos = new Vector3();
+        Vector3 basePos = new Vector3(),
+            newPos;
+        Grid.Mass m;
         
         for (int y = 0; y < Height; y++)
         {
@@ -96,16 +106,18 @@ public class GridRenderer : MonoBehaviour
                 basePos.z = vertices[i].z;
 
                 //Recup le plus proche
-                Grid.Mass m = G.GetClosestMassTo( basePos, CellSize*1.1f);
+                m = G.GetClosestMassTo( basePos, CellSize*1.1f);
 
                 colors[i].r = 1.0f;
                 if (m != null)
-                {                   
-                    float dist = (basePos - (m.Position - transform.position)).magnitude;
+                {
+                    newPos = m.Position - thisTransform.position;
                     //dist = Mathf.Max(0.01f, dist);
-                    basePos = m.Position - transform.position;
+                    
                     colors[i].b = m.GetFatigue()/10;
-                    colors[i].r = (dist/ CellSize)*1.5f;
+                    colors[i].r = ((basePos - newPos).sqrMagnitude / CellSizeSqr)*1.5f;
+
+                    basePos = newPos;
                 }
                 else
                 {

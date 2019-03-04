@@ -55,10 +55,10 @@ public class Buckets<T>
         YCount = yCount;
     }
 
-    public void AddToBucket(float x, float y, T truc)
+    public void AddToBucket(Vector3 position, T truc)
     {
-        int bX = Mathf.FloorToInt(x / CellWidth);
-        int bY = Mathf.FloorToInt(y / CellHeight);
+        int bX = Mathf.FloorToInt(position.x / CellWidth);
+        int bY = Mathf.FloorToInt(position.y / CellHeight);
 
         bX = System.Math.Max(0, bX);
         bY = System.Math.Max(0, bY);
@@ -86,13 +86,18 @@ public class Buckets<T>
         int bYStart = System.Math.Max(0, bY - nbCellDistY);
         int bXEnd = System.Math.Min(XCount-1, bX + nbCellDistX);
         int bYEnd = System.Math.Min(YCount-1, bY + nbCellDistY);
+        Bucket cell;
 
 
         for (int y = bYStart; y <= bYEnd;y++)
         {
             for (int x = bXStart; x <= bXEnd; x++)
             {
-                Neighbours.Add(Cells[x + y * XCount]);
+                cell = Cells[x + y * XCount];
+                for (int n = 0; n < cell.Count; n++)
+                {
+                    Neighbours.Add(cell.Trucs[n]);
+                }
             }
         }
     }
