@@ -32,7 +32,6 @@ public class GridRenderer : MonoBehaviour
     int Width;
     int Height;
     float CellSize;
-    float CellSizeSqr;
 
     public Mesh CreateGrid(int xCount, int yCount, float size)
     {
@@ -47,7 +46,6 @@ public class GridRenderer : MonoBehaviour
         Width = xCount + 1;
         Height = yCount + 1;
         CellSize = size;
-        CellSizeSqr = CellSize * CellSize;
 
 
         Vector2[] uv = new Vector2[vertices.Length];
@@ -115,7 +113,7 @@ public class GridRenderer : MonoBehaviour
                     //dist = Mathf.Max(0.01f, dist);
                     
                     colors[i].b = m.GetFatigue()/10;
-                    colors[i].r = ((basePos - newPos).sqrMagnitude / CellSizeSqr)*1.5f;
+                    colors[i].r = ((basePos - newPos).magnitude / CellSize)*1.5f;
 
                     basePos = newPos;
                 }
@@ -133,10 +131,10 @@ public class GridRenderer : MonoBehaviour
                 i++;
             }
         }
-        
+
+        mesh.MarkDynamic();
         mesh.vertices = vertices;
         mesh.colors = colors;
-        mesh.MarkDynamic();
         mesh.RecalculateNormals();
 
     }
