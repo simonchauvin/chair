@@ -60,15 +60,16 @@ public class Grid : MonoBehaviour
         Buckets.Create(nbCellX, nbCellY, (GridInitWidth * CellSize) / nbCellX, (GridInitHeight * CellSize) / nbCellY);
         PutMassesInBuckets();
 
+        Buckets<Mass>.Bucket massesToLink = new Buckets<Mass>.Bucket();
         for (int x = 0; x < GridInitWidth; x++)
         {
             for (int y = 0; y < GridInitHeight; y++)
             {
                 Vector3 position = thisTransform.position + new Vector3(CellSize * x, CellSize * y, 0);
 
-                List<Mass> massesToLink = new List<Mass>();
+                
                 GetMassesCloseTo(massesToLink, position, 0.01f);
-                Mass m = massesToLink[0];
+                Mass m = massesToLink.Trucs[0];
                 //m.AttachToNeighbor(Mathf.Sqrt(2 * (this.CellSize * this.CellSize)) * 1.01f);
                 m.AttachToNeighbor(this.CellSize * 1.01f);
             }
@@ -94,6 +95,7 @@ public class Grid : MonoBehaviour
         private Transform DebugObject;
         private float SumFatigue = 0;
         private float TemporalSmooth = 0.1f;
+        private int NbSpringsAttachedMax = 0;
 
         public Mass(Grid g)
         {
@@ -118,11 +120,13 @@ public class Grid : MonoBehaviour
 
         public float GetFatigue()
         {
-            return SumFatigue;
+            return (SumFatigue  + (NbSpringsAttachedMax - NbSpringsAttached))/ NbSpringsAttachedMax;
         }
 
         public void PreUpdate()
         {
+            if (NbSpringsAttachedMax < NbSpringsAttached)
+                NbSpringsAttachedMax = NbSpringsAttached;
             SumFatigue = 0;
         }
 
@@ -141,6 +145,10 @@ public class Grid : MonoBehaviour
 
             Forces = Vector3.Lerp(PrevForce,Forces,Mathf.Pow(1-TemporalSmooth,Time.deltaTime));
             PrevForce = Forces;
+
+            //Deplacement en vitesse limitée
+            if ((Forces).sqrMagnitude > 3)
+                Forces = Forces.normalized * 3;
 
             Position += Forces * deltaTime;
             Forces = Vector3.zero;
@@ -166,12 +174,13 @@ public class Grid : MonoBehaviour
 
         public void AttachToNeighbor(float distance)
         {
-            List<Mass> massesToLink = new List<Mass>();
+            Buckets<Grid.Mass>.Bucket massesToLink = new Buckets<Grid.Mass>.Bucket();
             G.GetMassesCloseTo(massesToLink, Position, distance, true);
 
-            foreach (Mass m2 in massesToLink)
+            for (int i=0; i< massesToLink.Count; i++)
             {
-                G.AddSpring(this, m2);
+                Mass m = massesToLink.Trucs[i];
+                G.AddSpring(this, m);
             }
         }
 
@@ -185,6 +194,7 @@ public class Grid : MonoBehaviour
         public Mass B;
 
         private float Length = 1;
+        private float PrevLengthSq = 1;
         private float MinLength = 0.1f;
         private float MaxLength = 1.9f;
         private bool KillMe = false;
@@ -195,6 +205,7 @@ public class Grid : MonoBehaviour
         private float SpeedFatigueUp = 0.1f;
         private float SpeedFatigueDown = 0.05f;
         private float Adaptivity = 0;
+
 
         public Spring(Grid g)
         {
@@ -215,50 +226,75 @@ public class Grid : MonoBehaviour
             MinLength = G.BaseSpringMinLength * length;
             MaxLength = G.BaseSpringMaxLength * length;
         }
-        
+
+ 
         public void Update()
         {
-            //On applique les forces aux masses
+
+            //On regarde si la length a changé
             Vector3 dir = B.Position - A.Position;
-            float lengthCur = dir.magnitude;
-            //On adapte la length
-            //SetLength(Mathf.Lerp(Length, lengthCur, Adaptivity));
-
-            Force = (lengthCur - Length) * K;
-
-            //On booste la force quand on se rapproche des points limites
-            float distToMin = Mathf.Max(0, lengthCur - MinLength) / (Length- MinLength);
-            float distToMax = Mathf.Max(0, MaxLength - lengthCur) / (MaxLength - Length);
-            float boost = Mathf.Min(distToMin, distToMax);
-
-            if (boost <= 1/ G.BaseBoostSpringForce)
-                boost = 1 / G.BaseBoostSpringForce;
-            Force *= 1/boost;
-
-            if (Force > G.BaseMaxSpringForce)
-                Force = G.BaseMaxSpringForce;
-
-
-            if(Mathf.Abs(Force - PrevForce) < 0.9f)
+            float lengthCurSq = dir.sqrMagnitude;
+            if (Mathf.Abs(PrevLengthSq - lengthCurSq) > 0.0001f )
             {
-                float boostFatigue = SpeedFatigueDown;
-                if ((Force - PrevForce) > 0)
-                    boostFatigue = SpeedFatigueUp;
-                Fatigue +=  (Force - PrevForce) * boostFatigue;
+                
+                //On applique les forces aux masses
+
+                float lengthCur = Mathf.Sqrt(lengthCurSq);
+                //On adapte la length
+                //SetLength(Mathf.Lerp(Length, lengthCur, Adaptivity));
+
+                Force = (lengthCur - Length) * K;
+
+                //On booste la force quand on se rapproche des points limites
+                float distToMin = Mathf.Max(0, lengthCur - MinLength) / (Length - MinLength);
+                float distToMax = Mathf.Max(0, MaxLength - lengthCur) / (MaxLength - Length);
+                float boost = Mathf.Min(distToMin, distToMax);
+
+                if (boost <= 1 / G.BaseBoostSpringForce)
+                    boost = 1 / G.BaseBoostSpringForce;
+                Force *= 1 / boost;
+
+                if (Force > G.BaseMaxSpringForce)
+                    Force = G.BaseMaxSpringForce;
+
+                //if (Force < 0.1f)
+                //  Force *= Force;
+
+
+                if (Mathf.Abs(Force - PrevForce) < 0.9f)
+                {
+                    float boostFatigue = SpeedFatigueDown;
+                    if ((Force - PrevForce) > 0 && Mathf.Abs(Force - PrevForce) > 0.5f)
+                        boostFatigue = SpeedFatigueUp;
+                    Fatigue += (Force - PrevForce) * boostFatigue;
+                }
+                PrevForce = Force;
+
+                /*if (Mathf.Abs(Force) > 0.1f)
+                {   
+                    Fatigue += Mathf.Abs(Force* Force)*0.1f * SpeedFatigueUp * Time.deltaTime;
+                }
+                Fatigue -= Time.deltaTime * SpeedFatigueDown;
+
+                Fatigue = Mathf.Max(Fatigue, 0);*/
+
+
+                //Kill
+                if (Fatigue > 1)
+                    Detach();
+
+
+                //On applique la force
+                Vector3 dirNorm = dir / lengthCur;
+                A.AddForce(dirNorm * Force);
+                B.AddForce(dirNorm * (-Force));
+                A.AddFatigue(Fatigue);
+                B.AddFatigue(Fatigue);
+
+                PrevLengthSq = lengthCurSq;
             }
-            PrevForce = Force;
 
-            //Kill
-            if ( Fatigue > 1)
-                Detach();
-
-                    
-            //On applique la force
-            Vector3 dirNorm = dir / lengthCur;
-            A.AddForce(dirNorm * Force);
-            B.AddForce(dirNorm *(-Force));
-            A.AddFatigue(Fatigue);
-            B.AddFatigue(Fatigue);
+            
         }
 
         public float distanceToMe(Vector3 v)
@@ -310,7 +346,7 @@ public class Grid : MonoBehaviour
     }
 
     Buckets<Grid.Mass>.Bucket tempNeighbours = new Buckets<Grid.Mass>.Bucket(); 
-    public void GetMassesCloseTo(List<Mass> found, Vector3 point, float distance, bool reset = true)
+    /*public void GetMassesCloseTo(List<Mass> found, Vector3 point, float distance, bool reset = true)
     {
         if (reset)
             found.Clear();
@@ -323,7 +359,26 @@ public class Grid : MonoBehaviour
                 found.Add(m);
         }
 
+    }*/
+
+    //En mode juste Bucket
+    public void GetMassesCloseTo(Buckets<Grid.Mass>.Bucket found, Vector3 point, float distance, bool reset = true)
+    {
+        float sqrDist = distance * distance;
+        if (reset)
+            found.Clear();
+        Vector3 posLocale = point - thisTransform.position;
+        Buckets.GetNeighbours(tempNeighbours, posLocale.x, posLocale.y, distance);
+        for (int i = 0; i < tempNeighbours.Count; i++)
+        {
+            Mass m = tempNeighbours.Trucs[i];
+            if ((m.Position - point).sqrMagnitude < sqrDist)
+                found.Add(m);
+        }
+
     }
+
+ 
 
     public Mass GetClosestMassTo(Vector3 point, float distance, bool reset = true)
     {
@@ -426,7 +481,8 @@ public class Grid : MonoBehaviour
             s.Update();
         }
 
-        Springs.RemoveAll(WantsToDie);
+        if(Springs.RemoveAll(WantsToDie) > 0)
+            SoundController.Instance.PlayRipSound();
 
         Masses.RemoveAll(WantsToDie);
 

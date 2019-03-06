@@ -12,19 +12,23 @@ public class GridBasicControl : MonoBehaviour
     }
 
     // Update is called once per frame
-    List<Grid.Mass> massesToMove = new List<Grid.Mass>();
+    Buckets<Grid.Mass>.Bucket massesToMove = new Buckets<Grid.Mass>.Bucket();
+    Buckets<Grid.Mass>.Bucket massesToLink = new Buckets<Grid.Mass>.Bucket();
+
     public void Update()
     {
         if (Input.GetButton("Fire1"))
         {
-            List<Grid.Mass> massesToLink = new List<Grid.Mass>();
             Vector3 clickPosScreen = Input.mousePosition;
             clickPosScreen.z = Mathf.Abs(Camera.main.transform.position.z);
             Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
             clickPos.z = transform.position.z;
             G.GetMassesCloseTo(massesToLink, clickPos, 2.0f);
-            foreach (Grid.Mass m in massesToLink)
+            for (int i = 0; i < massesToLink.Count; i++)
+            {
+                Grid.Mass m = massesToMove.Trucs[i];
                 m.AddForce((clickPos - m.Position) * 4);
+            }
         }
 
         if (Input.GetButtonDown("Fire2"))
@@ -44,8 +48,9 @@ public class GridBasicControl : MonoBehaviour
             Vector3 clickPos = Camera.main.ScreenToWorldPoint(clickPosScreen);
             clickPos.z = transform.position.z;
 
-            foreach (Grid.Mass m in massesToMove)
+            for (int i=0;i< massesToMove.Count;i++)
             {
+                Grid.Mass m = massesToMove.Trucs[i];
                 Vector3 force = (clickPos - m.Position) * 2;
                 m.AddForce(force);
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,7 +74,7 @@ public class Buckets<T>
             Cells[i].Clear();
     }
 
-    public void GetNeighbours(Bucket Neighbours, float xPos, float yPos, float distance)
+    public void GetNeighbours(Bucket Neighbours, float xPos, float yPos, float distance, Predicate<T> pred = null)
     {
 
         Neighbours.Clear();
@@ -96,7 +97,8 @@ public class Buckets<T>
                 cell = Cells[x + y * XCount];
                 for (int n = 0; n < cell.Count; n++)
                 {
-                    Neighbours.Add(cell.Trucs[n]);
+                    //if(pred == null || pred.Invoke(cell.Trucs[n]))
+                        Neighbours.Add(cell.Trucs[n]);
                 }
             }
         }

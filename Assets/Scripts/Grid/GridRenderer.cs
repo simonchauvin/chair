@@ -86,25 +86,87 @@ public class GridRenderer : MonoBehaviour
     }
 
     List<Grid.Mass> masses = new List<Grid.Mass>();
+    Vector3 basePos = new Vector3();
+    Vector3 posMoy = new Vector3();
+    int half = 0;
     public void UpdateMesh()
     {
         Mesh mesh = thisMeshFilter.mesh;
 
         int i = 0;
-        Vector3 basePos = new Vector3(),
-            newPos;
+        Vector3 mPos;
         Grid.Mass m;
-        
+        Buckets<Grid.Mass>.Bucket closeOnes = new Buckets<Grid.Mass>.Bucket();
+        float distMin = 0;
+        float fatMoy = 0;
+        posMoy.x = 0;
+        posMoy.y = 0;
+        posMoy.z = 0;
         for (int y = 0; y < Height; y++)
         {
-            for (int x = 0; x < Width; x++)
+            //On en update la motié a chaque fois :)
+            if (y % 2 == half)
+                i += Width;
+            else
             {
-                basePos.x = x * CellSize;
-                basePos.y = y * CellSize;
-                basePos.z = vertices[i].z;
 
+                for (int x = 0; x < Width; x++)
+                {
+                    basePos.x = x * CellSize;
+                    basePos.y = y * CellSize;
+                    basePos.z = 0;
+                    //basePos.z = vertices[i].z; 
+                   
+                    float distTakenIntoAccount = CellSize * 1.9f;
+
+                    //G.GetMassesCloseTo(closeOnes, basePos, distTakenIntoAccount);
+                    m = G.GetClosestMassTo(basePos, distTakenIntoAccount);
+
+                    //if (closeOnes.Count > 0)
+                    if(m != null)
+                    {
+                        /*distMin = (distTakenIntoAccount * distTakenIntoAccount);
+                        fatMoy = 0;
+                        posMoy.x = 0;
+                        posMoy.y = 0;
+                        posMoy.z = 0;
+
+                        float sumWeight = 0;
+                        for (int j = 0; j < closeOnes.Count; j++)
+                        {
+                            m = closeOnes.Trucs[j];
+                            mPos = m.Position - thisTransform.position;
+                            float dist = (mPos - basePos).sqrMagnitude / (distTakenIntoAccount * distTakenIntoAccount);
+                            float weight = 1.0f - (dist);
+                            distMin = dist < distMin ? dist : distMin;
+                            fatMoy += (m.GetFatigue() / 10) * weight;
+                            posMoy += mPos * weight;
+                            sumWeight += weight;
+                        }
+
+                        posMoy /= sumWeight;
+        
+                        fatMoy /= sumWeight;*/
+
+                        posMoy = m.Position - thisTransform.position;
+                        distMin = (posMoy - basePos).sqrMagnitude / (distTakenIntoAccount * distTakenIntoAccount);
+                        fatMoy = (m.GetFatigue());
+                    }
+                    else
+                    {
+                        posMoy = vertices[i];
+                        distMin = colors[i].r;
+                        fatMoy = colors[i].b;
+                    }
+
+                    colors[i].r = Mathf.Lerp(colors[i].r,distMin,0.3f);
+                    colors[i].b = Mathf.Lerp(colors[i].b,Mathf.Max(fatMoy, distMin),0.3f);
+                    vertices[i] = Vector3.Lerp(vertices[i],posMoy,0.9f);
+
+                    i++;
+                }
                 //Recup le plus proche
-                m = G.GetClosestMassTo( basePos, CellSize*1.1f);
+                /*m = G.GetClosestMassTo( basePos, CellSize*1.1f);
 
                 colors[i].r = 1.0f;
                 if (m != null)
@@ -123,19 +185,26 @@ public class GridRenderer : MonoBehaviour
                     colors[i].b = 0;
                 }
 
-                
+
 
                 // basePos.z = vertices[i].z;
-                vertices[i] = basePos;
+                vertices[i] = basePos;*/
+
                 
-                i++;
             }
+            
         }
 
         mesh.MarkDynamic();
         mesh.vertices = vertices;
         mesh.colors = colors;
         mesh.RecalculateNormals();
+
+        
+        if (half == 0)
+            half = 1;
+        else
+            half = 0;
 
     }
 }

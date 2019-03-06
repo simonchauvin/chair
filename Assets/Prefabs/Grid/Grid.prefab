@@ -54,14 +54,14 @@ MonoBehaviour:
   ShowDebugSprings: 0
   ShowDebugObjects: 0
   BaseMass: 2
-  BaseElasticity: 3
+  BaseElasticity: 1
   BaseSpringMinLength: 0.4
-  BaseSpringMaxLength: 1.5
+  BaseSpringMaxLength: 1.6
   BaseBoostSpringForce: 20
-  BaseMaxSpringForce: 7
-  TemporalSmooth: 0.5
-  SpeedFatigueUp: 0.6
-  SpeedFatigueDown: 0.3
+  BaseMaxSpringForce: 5
+  TemporalSmooth: 0
+  SpeedFatigueUp: 1
+  SpeedFatigueDown: 0.8
 --- !u!114 &2312317651145633806
 MonoBehaviour:
   m_ObjectHideFlags: 0

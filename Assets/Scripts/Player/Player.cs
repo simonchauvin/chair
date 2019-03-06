@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
 
     private Grid[] dermisLayers;
     private Touch[] touches;
-    private List<Grid.Mass> massesToMove = new List<Grid.Mass>();
+    private Buckets<Grid.Mass>.Bucket massesToMove = new Buckets<Grid.Mass>.Bucket();
 
     private int lastTouchCount;
     private Vector3 lastClickPosition;
@@ -159,16 +159,17 @@ public class Player : MonoBehaviour
         return clickPos;
     }
 
+    Buckets<Grid.Mass>.Bucket massesToLinkTmp = new Buckets<Grid.Mass>.Bucket();
     private void TouchSkin(Vector3 worldPosition, Vector3 direction, float factor)
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
-            List<Grid.Mass> massesToLink = new List<Grid.Mass>();
-            dermisLayers[j].GetMassesCloseTo(massesToLink, worldPosition, touchRadius);
-            if (massesToLink.Count > 0)
+            dermisLayers[j].GetMassesCloseTo(massesToLinkTmp, worldPosition, touchRadius);
+            if (massesToLinkTmp.Count > 0)
             {
-                foreach (Grid.Mass m in massesToLink)
+                for (int i=0;i< massesToLinkTmp.Count;i++)
                 {
+                    Grid.Mass m = massesToLinkTmp.Trucs[i];
                     m.AddForce(direction * factor + new Vector3(0, 0, touchDepth));
                 }
                 break;
@@ -180,12 +181,12 @@ public class Player : MonoBehaviour
     {
         for (int j = 0; j < dermisLayers.Length; j++)
         {
-            List<Grid.Mass> massesToLink = new List<Grid.Mass>();
-            dermisLayers[j].GetMassesCloseTo(massesToLink, worldPosition, touchRadius);
-            if (massesToLink.Count > 0)
+            dermisLayers[j].GetMassesCloseTo(massesToLinkTmp, worldPosition, touchRadius);
+            if (massesToLinkTmp.Count > 0)
             {
-                foreach (Grid.Mass m in massesToLink)
+                for (int i = 0; i < massesToLinkTmp.Count; i++)
                 {
+                    Grid.Mass m = massesToLinkTmp.Trucs[i];
                     m.AddForce((m.Position - worldPosition).normalized * factor + new Vector3(0, 0, touchDepth));
                 }
                 break;
@@ -195,8 +196,9 @@ public class Player : MonoBehaviour
 
     private void SelectSkinNode(Vector3 worldPosition)
     {
-        foreach (Grid.Mass m in massesToMove)
+        for (int i=0; i < massesToMove.Count ;i++)
         {
+            Grid.Mass m = massesToMove.Trucs[i];
             Vector3 force = (worldPosition - m.Position) * 2;
             m.AddForce(force);
         }
