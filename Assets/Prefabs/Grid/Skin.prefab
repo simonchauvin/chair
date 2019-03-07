@@ -46,5 +46,5 @@ MonoBehaviour:
   dermisLayerPrefab: {fileID: 8903817736110772040, guid: 9a675d4717ff90144a8a9e06d4d8ff5e,
     type: 3}
   dermisCount: 1
-  width: 30
+  width: 40
   lifeExpectancy: 600
