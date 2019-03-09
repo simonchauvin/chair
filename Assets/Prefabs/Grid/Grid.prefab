@@ -62,6 +62,7 @@ MonoBehaviour:
   TemporalSmooth: 0
   SpeedFatigueUp: 1
   SpeedFatigueDown: 0.8
+  minLengthDiffToUpdateSpring: 0.0001
 --- !u!114 &2312317651145633806
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -26,6 +26,8 @@ public class Grid : MonoBehaviour
     public float TemporalSmooth = 0.6f;
     public float SpeedFatigueUp = 0.6f;
     public float SpeedFatigueDown = 0.3f;
+    [SerializeField]
+    private float minLengthDiffToUpdateSpring = 0.0001f;
 
     private Transform thisTransform;
 
@@ -234,7 +236,7 @@ public class Grid : MonoBehaviour
             //On regarde si la length a changé
             Vector3 dir = B.Position - A.Position;
             float lengthCurSq = dir.sqrMagnitude;
-            if (Mathf.Abs(PrevLengthSq - lengthCurSq) > 0.0001f )
+            if (Mathf.Abs(PrevLengthSq - lengthCurSq) > G.minLengthDiffToUpdateSpring)
             {
                 
                 //On applique les forces aux masses
